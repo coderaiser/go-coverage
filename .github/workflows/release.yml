@@ -27,7 +27,7 @@ jobs:
           go test \
             -coverprofile=coverage.out \
             -covermode=atomic \
-            -coverpkg=example.com/coverage \
+            -coverpkg=coderaiser/go-coverage \
             ./...
           go tool cover -func=coverage.out
           # Fail if any function in coverage.go is below 100%

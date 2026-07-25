@@ -13,7 +13,7 @@ coverage:
 	go test \
 		-coverprofile=coverage.out \
 		-covermode=atomic \
-		-coverpkg=example.com/coverage \
+		-coverpkg=coderaiser/go-coverage \
 		./...
 	go tool cover -func=coverage.out
 	go tool cover -html=coverage.out -o coverage.html

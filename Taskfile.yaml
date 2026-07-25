@@ -5,20 +5,15 @@ tasks:
   test:
     desc: Run all unit tests
     cmds:
-      - go test ./...
+      - go test coderaiser/go-coverage
 
   coverage:
     desc: |
       Run tests with coverage scoped to the library package only.
       run.go (CLI glue) is intentionally excluded.
     cmds:
-      - go test
-          -coverprofile=coverage.out
-          -covermode=atomic
-          -coverpkg=example.com/coverage
-          ./...
-      - go tool cover -func=coverage.out
-      - go tool cover -html=coverage.out -o coverage.html
+      - go test -coverprofile=coverage.out -covermode=atomic coderaiser/go-coverage > /dev/null
+      - go tool cover -func=coverage.out | grep 'covered\.go'
 
   build:
     desc: Build the binary for the current platform

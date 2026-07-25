@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"example.com/coverage"
+	"coderaiser/go-coverage"
 )
 
 func main() {

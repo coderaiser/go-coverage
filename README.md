@@ -81,11 +81,11 @@ make coverage        # prints per-function table + opens HTML report
 Expected output:
 
 ```
-example.com/coverage  ColorEnabled     100.0%
-example.com/coverage  ParseCoverage    100.0%
-example.com/coverage  ReadLines        100.0%
-example.com/coverage  FormatBlock      100.0%
-example.com/coverage  total:           100.0%
+coderaiser/go-coverage  ColorEnabled     100.0%
+coderaiser/go-coverage  ParseCoverage    100.0%
+coderaiser/go-coverage  ReadLines        100.0%
+coderaiser/go-coverage  FormatBlock      100.0%
+coderaiser/go-coverage  total:           100.0%
 ```
 
 ## Project layout

@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"example.com/coverage"
-	"example.com/coverage/internal/assert"
+	"coderaiser/go-coverage"
+	"coderaiser/go-coverage/internal/assert"
 )
 
 func TestParseCoverageReturnscoverageBlocks(t *testing.T) {

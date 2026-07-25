@@ -1,3 +1,3 @@
-module example.com/coverage
+module coderaiser/go-coverage
 
 go 1.22
