@@ -39,7 +39,7 @@ COLOR=0 coverage -f coverage.out
 **From source (requires Go 1.22+)**
 
 ```sh
-git clone https://github.com/your-org/coverage.git
+git clone https://github.com/coderaiser/go-coverage.git
 cd coverage
 go install ./cmd/coverage
 ```
@@ -65,44 +65,5 @@ palabra i coverage
 ## Running tests
 
 ```sh
-make test
-```
-
-### Coverage report
-
-`run.go` contains only CLI glue (`os.Open`, `os.Args`, `flag.Parse`) and is
-excluded from coverage via `-coverpkg` scoping.  
-All library functions in `coverage.go` are covered at **100 %**.
-
-```sh
-make coverage        # prints per-function table + opens HTML report
-```
-
-Expected output:
-
-```
-coderaiser/go-coverage  ColorEnabled     100.0%
-coderaiser/go-coverage  ParseCoverage    100.0%
-coderaiser/go-coverage  ReadLines        100.0%
-coderaiser/go-coverage  FormatBlock      100.0%
-coderaiser/go-coverage  total:           100.0%
-```
-
-## Project layout
-
-```
-.
-├── coverage.go          # Library: ParseCoverage, ReadLines, FormatBlock, ColorEnabled
-├── run.go                # CLI glue: Run() — excluded from coverage
-├── coverage_test.go     # Unit tests (package coverage_test)
-├── cmd/
-│   └── coverage/
-│       └── main.go       # Binary entry point
-├── internal/
-│   └── assert/
-│       └── assert.go     # Minimal test helpers (testify-compatible API)
-├── Makefile
-└── .github/
-    └── workflows/
-        └── release.yml   # Build & publish binaries on git tag
+task test
 ```

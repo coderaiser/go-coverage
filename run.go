@@ -11,14 +11,14 @@ import (
 func Run(args []string, stdout io.Writer) error {
 	codeFrame := false
 	for _, a := range args {
-		if a == "--code-frame" || a == "-code-frame" {
+		if a == "--code-frame" {
 			codeFrame = true
 		}
 	}
 
 	path := "coverage.out"
 	for i, a := range args {
-		if (a == "-f" || a == "--f") && i+1 < len(args) {
+		if (a == "-f" ) && i+1 < len(args) {
 			path = args[i+1]
 		}
 	}

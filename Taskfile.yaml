@@ -6,6 +6,7 @@ tasks:
     desc: Run all unit tests
     cmds:
       - go test coderaiser/go-coverage
+      - go test ./cmd/lint/
 
   coverage:
     desc: |
@@ -36,7 +37,8 @@ tasks:
     desc: Run go vet
     cmds:
       - go vet ./...
-      - 
+      - go run ./cmd/lint ./...
+    
   'fix:lint':
     desc: Run fix lint
     cmds:
