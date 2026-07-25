@@ -51,11 +51,12 @@ func TestParseCoverageEmptyInput(t *testing.T) {
 func TestFormatBlockWithoutLines(t *testing.T) {
 	got := coverage.FormatBlock(
 		coverage.Block{File: "main.go", Start: 10, End: 12},
+		"/",
 		nil,
 		false,
 	)
 
-	assert.Equal(t, "main.go:10-12", got)
+	assert.Equal(t, "file://main.go:10: 10-12", got)
 }
 
 func TestFormatBlockWithLinesNoColor(t *testing.T) {
@@ -67,6 +68,7 @@ func TestFormatBlockWithLinesNoColor(t *testing.T) {
 
 	got := coverage.FormatBlock(
 		coverage.Block{File: "main.go", Start: 10, End: 12},
+		"/",
 		lines,
 		false,
 	)
@@ -79,6 +81,7 @@ func TestFormatBlockWithLinesColor(t *testing.T) {
 
 	got := coverage.FormatBlock(
 		coverage.Block{File: "main.go", Start: 5, End: 5},
+		"/",
 		lines,
 		true,
 	)
@@ -91,6 +94,7 @@ func TestFormatBlockLineNumbers(t *testing.T) {
 
 	got := coverage.FormatBlock(
 		coverage.Block{File: "f.go", Start: 20, End: 22},
+		"/",
 		lines,
 		false,
 	)

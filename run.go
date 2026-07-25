@@ -30,8 +30,6 @@ func isExcluded(file string, patterns []string) bool {
 	return false
 }
 
-// Run is the CLI entry point.
-// Excluded from coverage: touches os.Open, os.Args — integration-only.
 func Run(args []string, stdout io.Writer) error {
 	codeFrame := false
 	for _, a := range args {
@@ -78,7 +76,7 @@ func Run(args []string, stdout io.Writer) error {
 			}
 		}
 
-		fmt.Fprintln(stdout, FormatBlock(b, lines, color))
+		fmt.Fprintln(stdout, FormatBlock(b, dir, lines, color))
 	}
 
 	return nil
