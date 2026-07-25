@@ -33,7 +33,7 @@ func (r *NoSkip) Check(
 
 		if sel.Sel.Name == "Skip" {
 			results = append(results, rule.Result{
-				Pos: fset.Position(call.Pos()),
+				Pos:     fset.Position(call.Pos()),
 				Message: "t.Skip is forbidden",
 			})
 		}

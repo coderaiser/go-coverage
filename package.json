@@ -1,0 +1,26 @@
+{
+  "name": "go-coverage",
+  "private": true,
+  "version": "1.0.0",
+  "description": "CLI tool that reads a Go `coverage.out` profile and prints coverage blocks. Optionally shows a code frame (source lines) around each coverage block.",
+  "main": "index.js",
+  "scripts": {
+    "test": "task test",
+    "coverage": "task coverage",
+    "build": "task build",
+    "lint": "task lint",
+    "fix:lint": "task fix:lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coderaiser/go-coverage.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/coderaiser/go-coverage/issues"
+  },
+  "homepage": "https://github.com/coderaiser/go-coverage#readme"
+}

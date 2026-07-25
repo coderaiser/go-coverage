@@ -9,6 +9,7 @@ import (
 
 	"coderaiser/go-coverage"
 	"coderaiser/go-coverage/internal/assert"
+
 	"github.com/lithammer/dedent"
 )
 
@@ -17,7 +18,7 @@ func TestParseCoverageReturnsUncoveredBlocks(t *testing.T) {
         mode: set
         github.com/app/main.go:5.1,8.2 3 1
         github.com/app/main.go:10.1,12.2 2 0
-    `);
+    `)
 
 	blocks := coverage.ParseCoverage(strings.NewReader(input))
 
@@ -38,7 +39,7 @@ func TestParseCoverageSkipsCoveredBlocks(t *testing.T) {
 	input := dedent.Dedent(`
         mode: set
         github.com/app/main.go:1.1,2.1 1 5
-    `;
+    `)
 
 	blocks := coverage.ParseCoverage(strings.NewReader(input))
 
@@ -117,7 +118,7 @@ func TestReadLinesReturnsCorrectRange(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	lines,_ := coverage.ReadLines(path, 2, 4)
+	lines, _ := coverage.ReadLines(path, 2, 4)
 
 	assert.Equal(t, []string{"line2", "line3", "line4"}, lines)
 }

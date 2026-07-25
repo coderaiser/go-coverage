@@ -79,9 +79,9 @@ func Run(args []string, stdout io.Writer) error {
 		fmt.Fprintln(stdout, FormatBlock(b, dir, lines, color))
 	}
 
-    if len(blocks) > 0{
-        os.Exit(1)
-    }
+	if len(blocks) > 0 {
+		os.Exit(1)
+	}
 
 	return nil
 }

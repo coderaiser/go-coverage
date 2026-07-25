@@ -32,7 +32,7 @@ func Run(files []string) bool {
 
 			failed = true
 			continue
-			}
+		}
 
 		for _, rule := range rules.All {
 			results := rule.Check(file, fset)
