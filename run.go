@@ -4,10 +4,34 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
+
+	"github.com/BurntSushi/toml"
 )
 
+type Config struct {
+	Exclude struct {
+		Files []string `toml:"files"`
+	} `toml:"exclude"`
+}
+
+func loadConfig(path string) Config {
+	var cfg Config
+	toml.DecodeFile(path, &cfg)
+	return cfg
+}
+
+func isExcluded(file string, patterns []string) bool {
+	for _, p := range patterns {
+		if strings.Contains(file, p) {
+			return true
+		}
+	}
+	return false
+}
+
 // Run is the CLI entry point.
-// Excluded from coverage: touches os.Open, os.Args, flag.Parse — integration-only.
+// Excluded from coverage: touches os.Open, os.Args — integration-only.
 func Run(args []string, stdout io.Writer) error {
 	codeFrame := false
 	for _, a := range args {
@@ -18,7 +42,7 @@ func Run(args []string, stdout io.Writer) error {
 
 	path := "coverage.out"
 	for i, a := range args {
-		if (a == "-f" ) && i+1 < len(args) {
+		if a == "-f" && i+1 < len(args) {
 			path = args[i+1]
 		}
 	}
@@ -29,14 +53,22 @@ func Run(args []string, stdout io.Writer) error {
 	}
 	defer f.Close()
 
+	cfg := loadConfig("coverage.toml")
+
+	dir, _ := os.Getwd()
 	blocks := ParseCoverage(f)
 	color := ColorEnabled()
 
 	for _, b := range blocks {
+		if isExcluded(b.File, cfg.Exclude.Files) {
+			continue
+		}
+
 		var lines []string
 
 		if codeFrame {
-			lines, _ = ReadLines(b.File, b.Start, b.End)
+			resolved := ResolveFile(b.File, dir)
+			lines, _ = ReadLines(resolved, b.Start, b.End)
 		}
 
 		fmt.Fprintln(stdout, FormatBlock(b, lines, color))

@@ -3,6 +3,7 @@ package coverage_test
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -140,4 +141,22 @@ func writeFile(path, content string) error {
 	defer f.Close()
 	_, err = fmt.Fprint(f, content)
 	return err
+}
+
+func TestResolveFileStripsModuleName(t *testing.T) {
+	dir := t.TempDir()
+
+	if err := writeFile(filepath.Join(dir, "go.mod"), "module mymod/myapp\n\ngo 1.22\n"); err != nil {
+		t.Fatal(err)
+	}
+
+	got := coverage.ResolveFile("mymod/myapp/pkg/foo.go", dir)
+	want := filepath.Join(dir, "pkg/foo.go")
+
+	assert.Equal(t, want, got)
+}
+
+func TestResolveFileNoModule(t *testing.T) {
+	got := coverage.ResolveFile("some/path/foo.go", t.TempDir())
+	assert.Equal(t, "some/path/foo.go", got)
 }

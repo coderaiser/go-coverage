@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
-
 
 type Block struct {
 	File  string
@@ -61,6 +61,42 @@ func ParseCoverage(r io.Reader) []Block {
 	}
 
 	return blocks
+}
+
+// ResolveFile converts a module-relative path from coverage.out
+// (e.g. "coderaiser/go-coverage/run.go") into an absolute path on disk
+// by walking up from dir looking for go.mod and stripping the module name.
+func ResolveFile(file, dir string) string {
+	modRoot, modName := findModule(dir)
+	if modRoot == "" {
+		return file
+	}
+
+	rel := strings.TrimPrefix(file, modName+"/")
+	return filepath.Join(modRoot, rel)
+}
+
+func findModule(dir string) (root, name string) {
+	for {
+		gomod := filepath.Join(dir, "go.mod")
+		if data, err := os.ReadFile(gomod); err == nil {
+			for _, line := range strings.Split(string(data), "\n") {
+				line = strings.TrimSpace(line)
+				if strings.HasPrefix(line, "module ") {
+					return dir, strings.TrimPrefix(line, "module ")
+				}
+			}
+		}
+
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			break
+		}
+
+		dir = parent
+	}
+
+	return "", ""
 }
 
 func ReadLines(path string, start, end int) ([]string, error) {
