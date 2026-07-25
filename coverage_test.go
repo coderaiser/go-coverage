@@ -1,4 +1,4 @@
-package coverage_test 
+package coverage_test
 
 import (
 	"fmt"

@@ -36,6 +36,12 @@ tasks:
     desc: Run go vet
     cmds:
       - go vet ./...
+      - 
+  'fix:lint':
+    desc: Run fix lint
+    cmds:
+      - goimports -w .
+      - gofmt -w .
 
   clean:
     desc: Remove build artefacts

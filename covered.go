@@ -9,7 +9,6 @@ import (
 	"strings"
 )
 
-
 type Block struct {
 	File  string
 	Start int
@@ -114,5 +113,3 @@ func FormatBlock(b Block, lines []string, color bool) string {
 
 	return strings.TrimRight(sb.String(), "\n")
 }
-
-
