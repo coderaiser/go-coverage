@@ -6,6 +6,7 @@
  	"strings"
  	"sync"
  	"testing"
+ 	"runtime"
  )
  
  var (
@@ -22,15 +23,34 @@
  }
  
  func hit(t *testing.T) {
+ 	t.Helper()
+ 
  	mu.Lock()
  	defer mu.Unlock()
  
  	count[t]++
  
  	if count[t] > 1 {
- 		t.Fatalf("too many assertions: got %d, expected 1", count[t])
+ 		_, file, line, ok := runtime.Caller(2)
+ 
+ 		if ok {
+ 			t.Fatalf(
+ 				"too many assertions: got %d, expected 1\nat %s:%d",
+ 				count[t],
+ 				file,
+ 				line,
+ 			)
+ 		}
+ 
+ 		t.Fatalf(
+ 			"too many assertions: got %d, expected 1",
+ 			count[t],
+ 		)
  	}
  }
+
+
+
  
  func Equal(t *testing.T, want, got any) {
  	t.Helper()
