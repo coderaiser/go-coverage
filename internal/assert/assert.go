@@ -24,7 +24,7 @@ func Contains(t *testing.T, s, sub string) {
 	}
 }
 
-func False(t *testing.T, v bool) {
+func NotOk(t *testing.T, v bool) {
 	t.Helper()
 
 	if v {
@@ -48,7 +48,7 @@ func Error(t *testing.T, err error) {
 	}
 }
 
-func True(t *testing.T, v bool) {
+func Ok(t *testing.T, v bool) {
 	t.Helper()
 
 	if !v {

@@ -1,4 +1,4 @@
-package coverage_test
+package coverage_test 
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	"coderaiser/go-coverage/internal/assert"
 )
 
-func TestParseCoverageReturnscoverageBlocks(t *testing.T) {
+func TestParseCoverageReturnsUncoveredBlocks(t *testing.T) {
 	input := `mode: set
 github.com/app/main.go:5.1,8.2 3 1
 github.com/app/main.go:10.1,12.2 2 0
@@ -131,13 +131,13 @@ func TestReadLinesFileNotFound(t *testing.T) {
 func TestColorEnabled(t *testing.T) {
 	t.Setenv("COLOR", "1")
 
-	assert.True(t, coverage.ColorEnabled())
+	assert.Ok(t, coverage.ColorEnabled())
 }
 
 func TestColorDisabledByEnv(t *testing.T) {
 	t.Setenv("COLOR", "0")
 
-	assert.False(t, coverage.ColorEnabled())
+	assert.NotOk(t, coverage.ColorEnabled())
 }
 
 // writeFile — хелпер для создания файла в тесте.
