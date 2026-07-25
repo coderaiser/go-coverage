@@ -69,6 +69,10 @@ func Run(args []string, stdout io.Writer) error {
 		if codeFrame {
 			resolved := ResolveFile(b.File, dir)
 			lines, _ = ReadLines(resolved, b.Start, b.End)
+
+			if color && len(lines) > 0 {
+				lines = HighlightLines(lines)
+			}
 		}
 
 		fmt.Fprintln(stdout, FormatBlock(b, lines, color))

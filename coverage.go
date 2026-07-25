@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/alecthomas/chroma/v2/quick"
 )
 
 type Block struct {
@@ -121,6 +123,21 @@ func ReadLines(path string, start, end int) ([]string, error) {
 	}
 
 	return lines, scanner.Err()
+}
+
+// HighlightLines applies ANSI syntax highlighting to Go source lines.
+// Falls back to plain text if highlighting fails.
+func HighlightLines(lines []string) []string {
+	src := strings.Join(lines, "\n")
+
+	var buf strings.Builder
+	err := quick.Highlight(&buf, src, "go", "terminal256", "monokai")
+	if err != nil {
+		return lines
+	}
+
+	highlighted := strings.Split(strings.TrimRight(buf.String(), "\n"), "\n")
+	return highlighted
 }
 
 func FormatBlock(b Block, lines []string, color bool) string {

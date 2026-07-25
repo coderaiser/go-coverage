@@ -143,6 +143,28 @@ func writeFile(path, content string) error {
 	return err
 }
 
+func TestHighlightLinesReturnsANSILenth(t *testing.T) {
+	lines := []string{"func main() {", "\treturn", "}"}
+
+	got := coverage.HighlightLines(lines)
+
+	assert.Equal(t, len(lines), len(got))
+}
+
+func TestHighlightLinesReturnsANSIContains(t *testing.T) {
+	lines := []string{"func main() {", "\treturn", "}"}
+
+	got := coverage.HighlightLines(lines)
+
+	assert.Contains(t, strings.Join(got, "\n"), "\033[")
+}
+
+func TestHighlightLinesFallbackOnEmpty(t *testing.T) {
+	got := coverage.HighlightLines([]string{})
+
+	assert.Equal(t, []string{""}, got)
+}
+
 func TestResolveFileStripsModuleName(t *testing.T) {
 	dir := t.TempDir()
 
