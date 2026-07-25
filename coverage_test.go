@@ -108,7 +108,6 @@ func TestFormatBlockLineNumbers(t *testing.T) {
 }
 
 func TestReadLinesReturnsCorrectRange(t *testing.T) {
-	// Создаём временный файл с известным содержимым
 	content := "line1\nline2\nline3\nline4\nline5\n"
 
 	path := t.TempDir() + "/test.go"
@@ -140,7 +139,6 @@ func TestColorDisabledByEnv(t *testing.T) {
 	assert.NotOk(t, coverage.ColorEnabled())
 }
 
-// writeFile — хелпер для создания файла в тесте.
 func writeFile(path, content string) error {
 	f, err := os.Create(path)
 	if err != nil {
