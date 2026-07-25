@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Run tests
+        run: go test ./...
+
+      - name: Check library coverage is 100%
+        run: |
+          go test \
+            -coverprofile=coverage.out \
+            -covermode=atomic \
+            -coverpkg=example.com/coverage \
+            ./...
+          go tool cover -func=coverage.out
+          # Fail if any function in coverage.go is below 100%
+          go tool cover -func=coverage.out \
+            | awk '/coverage\.go/ && $3!="100.0%" { print "FAIL: "$0; fail=1 } END { exit fail }'
+
+  release:
+    name: GoReleaser
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # required: goreleaser reads full git history
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v7
+        with:
+          distribution: goreleaser
+          version: '~> v2'
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

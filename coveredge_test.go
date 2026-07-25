@@ -1,0 +1,152 @@
+package coverage_test
+
+import (
+	"fmt"
+	"os"
+	"strings"
+	"testing"
+
+	"example.com/coverage"
+	"example.com/coverage/internal/assert"
+)
+
+func TestParseCoverageReturnscoverageBlocks(t *testing.T) {
+	input := `mode: set
+github.com/app/main.go:5.1,8.2 3 1
+github.com/app/main.go:10.1,12.2 2 0
+`
+
+	blocks := coverage.ParseCoverage(strings.NewReader(input))
+
+	assert.Equal(
+		t,
+		[]coverage.Block{
+			{
+				File:  "github.com/app/main.go",
+				Start: 10,
+				End:   12,
+			},
+		},
+		blocks,
+	)
+}
+
+func TestParseCoverageSkipsCoveredBlocks(t *testing.T) {
+	input := `mode: set
+github.com/app/main.go:1.1,2.1 1 5
+`
+
+	blocks := coverage.ParseCoverage(strings.NewReader(input))
+
+	assert.Equal(t, []coverage.Block(nil), blocks)
+}
+
+func TestParseCoverageEmptyInput(t *testing.T) {
+	blocks := coverage.ParseCoverage(strings.NewReader("mode: set\n"))
+
+	assert.Equal(t, []coverage.Block(nil), blocks)
+}
+
+func TestFormatBlockWithoutLines(t *testing.T) {
+	got := coverage.FormatBlock(
+		coverage.Block{File: "main.go", Start: 10, End: 12},
+		nil,
+		false,
+	)
+
+	assert.Equal(t, "main.go:10-12", got)
+}
+
+func TestFormatBlockWithLinesNoColor(t *testing.T) {
+	lines := []string{
+		"if x == nil {",
+		"    return err",
+		"}",
+	}
+
+	got := coverage.FormatBlock(
+		coverage.Block{File: "main.go", Start: 10, End: 12},
+		lines,
+		false,
+	)
+
+	assert.Contains(t, got, "main.go:10-12")
+	assert.Contains(t, got, "10 | if x == nil {")
+	assert.Contains(t, got, "11 | "+lines[1])
+	assert.Contains(t, got, "12 | "+lines[2])
+}
+
+func TestFormatBlockWithLinesColor(t *testing.T) {
+	lines := []string{"return nil"}
+
+	got := coverage.FormatBlock(
+		coverage.Block{File: "main.go", Start: 5, End: 5},
+		lines,
+		true,
+	)
+
+	// ANSI red должен быть в заголовке
+	assert.Contains(t, got, "\033[31m")
+	assert.Contains(t, got, "main.go:5-5")
+	assert.Contains(t, got, "return nil")
+}
+
+func TestFormatBlockLineNumbers(t *testing.T) {
+	lines := []string{"a", "b", "c"}
+
+	got := coverage.FormatBlock(
+		coverage.Block{File: "f.go", Start: 20, End: 22},
+		lines,
+		false,
+	)
+
+	for i, want := range []string{"20", "21", "22"} {
+		if !strings.Contains(got, want) {
+			t.Errorf("line %d: want line number %s in output:\n%s", i, want, got)
+		}
+	}
+}
+
+func TestReadLinesReturnsCorrectRange(t *testing.T) {
+	// Создаём временный файл с известным содержимым
+	content := "line1\nline2\nline3\nline4\nline5\n"
+
+	path := t.TempDir() + "/test.go"
+	if err := writeFile(path, content); err != nil {
+		t.Fatal(err)
+	}
+
+	lines, err := coverage.ReadLines(path, 2, 4)
+
+	assert.NoError(t, err)
+	assert.Equal(t, []string{"line2", "line3", "line4"}, lines)
+}
+
+func TestReadLinesFileNotFound(t *testing.T) {
+	_, err := coverage.ReadLines("/nonexistent/file.go", 1, 5)
+
+	assert.Error(t, err)
+}
+
+func TestColorEnabled(t *testing.T) {
+	t.Setenv("COLOR", "1")
+
+	assert.True(t, coverage.ColorEnabled())
+}
+
+func TestColorDisabledByEnv(t *testing.T) {
+	t.Setenv("COLOR", "0")
+
+	assert.False(t, coverage.ColorEnabled())
+}
+
+// writeFile — хелпер для создания файла в тесте.
+func writeFile(path, content string) error {
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = fmt.Fprint(f, content)
+	return err
+}

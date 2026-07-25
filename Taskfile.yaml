@@ -1,0 +1,56 @@
+
+version: '3'
+
+tasks:
+  test:
+    desc: Run all unit tests
+    cmds:
+      - go test ./...
+
+  coverage:
+    desc: |
+      Run tests with coverage scoped to the library package only.
+      run.go (CLI glue) is intentionally excluded.
+    cmds:
+      - go test
+          -coverprofile=coverage.out
+          -covermode=atomic
+          -coverpkg=example.com/coverage
+          ./...
+      - go tool cover -func=coverage.out
+      - go tool cover -html=coverage.out -o coverage.html
+
+  build:
+    desc: Build the binary for the current platform
+    cmds:
+      - go build -o coverage ./cmd/coverage
+
+  release:snapshot:
+    desc: |
+      Dry-run GoReleaser locally — builds all platform binaries into ./dist
+      without publishing. Requires goreleaser to be installed (brew install goreleaser).
+    cmds:
+      - goreleaser release --snapshot --clean
+
+  release:check:
+    desc: Validate .goreleaser.yaml without building
+    cmds:
+      - goreleaser check
+
+  lint:
+    desc: Run go vet
+    cmds:
+      - go vet ./...
+
+  clean:
+    desc: Remove build artefacts
+    cmds:
+      - rm -f coverage coverage.out coverage.html
+      - rm -rf dist
+
+  run:
+    desc: |
+      Run coverage against a coverage profile.
+      Usage: task run -- -f myproject.out --code-frame
+    cmds:
+      - go run ./cmd/coverage {{.CLI_ARGS}}
