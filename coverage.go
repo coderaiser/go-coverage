@@ -18,6 +18,8 @@ type Block struct {
 	End   int
 }
 
+var highlight = quick.Highlight
+
 func ColorEnabled() bool {
 	return os.Getenv("COLOR") != "0"
 }
@@ -129,7 +131,7 @@ func HighlightLines(lines []string) []string {
 	src := strings.Join(lines, "\n")
 
 	var buf strings.Builder
-	err := quick.Highlight(&buf, src, "go", "terminal256", "monokai")
+	err := highlight(&buf, src, "go", "terminal256", "monokai")
 	if err != nil {
 		return lines
 	}
