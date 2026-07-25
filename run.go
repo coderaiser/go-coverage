@@ -56,6 +56,7 @@ func Run(args []string, stdout io.Writer) error {
 	cfg := loadConfig("coverage.toml")
 
 	dir, _ := os.Getwd()
+	_, modName := FindModule(dir)
 	blocks := ParseCoverage(f)
 	color := ColorEnabled()
 
@@ -63,6 +64,8 @@ func Run(args []string, stdout io.Writer) error {
 		if isExcluded(b.File, cfg.Exclude.Files) {
 			continue
 		}
+
+		b.File = RelativeFile(b.File, modName)
 
 		var lines []string
 

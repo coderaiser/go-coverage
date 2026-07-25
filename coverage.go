@@ -69,16 +69,15 @@ func ParseCoverage(r io.Reader) []Block {
 // (e.g. "coderaiser/go-coverage/run.go") into an absolute path on disk
 // by walking up from dir looking for go.mod and stripping the module name.
 func ResolveFile(file, dir string) string {
-	modRoot, modName := findModule(dir)
+	modRoot, _ := FindModule(dir)
 	if modRoot == "" {
 		return file
 	}
 
-	rel := strings.TrimPrefix(file, modName+"/")
-	return filepath.Join(modRoot, rel)
+	return filepath.Join(modRoot, file)
 }
 
-func findModule(dir string) (root, name string) {
+func FindModule(dir string) (root, name string) {
 	for {
 		gomod := filepath.Join(dir, "go.mod")
 		if data, err := os.ReadFile(gomod); err == nil {
@@ -123,6 +122,13 @@ func ReadLines(path string, start, end int) ([]string, error) {
 	}
 
 	return lines, scanner.Err()
+}
+
+// RelativeFile strips the module name prefix from a coverage path,
+// returning a path relative to the module root.
+// e.g. "coderaiser/go-coverage/coverage.go" → "coverage.go"
+func RelativeFile(file, modName string) string {
+	return strings.TrimPrefix(file, modName+"/")
 }
 
 // HighlightLines applies ANSI syntax highlighting to Go source lines.

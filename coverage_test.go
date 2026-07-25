@@ -143,15 +143,7 @@ func writeFile(path, content string) error {
 	return err
 }
 
-func TestHighlightLinesReturnsANSILenth(t *testing.T) {
-	lines := []string{"func main() {", "\treturn", "}"}
-
-	got := coverage.HighlightLines(lines)
-
-	assert.Equal(t, len(lines), len(got))
-}
-
-func TestHighlightLinesReturnsANSIContains(t *testing.T) {
+func TestHighlightLinesReturnsANSI(t *testing.T) {
 	lines := []string{"func main() {", "\treturn", "}"}
 
 	got := coverage.HighlightLines(lines)
@@ -159,10 +151,46 @@ func TestHighlightLinesReturnsANSIContains(t *testing.T) {
 	assert.Contains(t, strings.Join(got, "\n"), "\033[")
 }
 
+func TestHighlightLinesPreservesCount(t *testing.T) {
+	lines := []string{"func main() {", "\treturn", "}"}
+
+	got := coverage.HighlightLines(lines)
+
+	assert.Equal(t, len(lines), len(got))
+}
+
 func TestHighlightLinesFallbackOnEmpty(t *testing.T) {
 	got := coverage.HighlightLines([]string{})
 
 	assert.Equal(t, []string{""}, got)
+}
+
+func TestFindModuleReturnsRoot(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(filepath.Join(dir, "go.mod"), "module mymod/myapp\n\ngo 1.22\n")
+
+	root, _ := coverage.FindModule(dir)
+
+	assert.Equal(t, dir, root)
+}
+
+func TestFindModuleReturnsName(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(filepath.Join(dir, "go.mod"), "module mymod/myapp\n\ngo 1.22\n")
+
+	_, name := coverage.FindModule(dir)
+
+	assert.Equal(t, "mymod/myapp", name)
+}
+
+func TestRelativeFileStripsModule(t *testing.T) {
+	got := coverage.RelativeFile("mymod/myapp/pkg/foo.go", "mymod/myapp")
+	assert.Equal(t, "pkg/foo.go", got)
+}
+
+func TestRelativeFileNoMatch(t *testing.T) {
+	got := coverage.RelativeFile("other/module/foo.go", "mymod/myapp")
+	assert.Equal(t, "other/module/foo.go", got)
 }
 
 func TestResolveFileStripsModuleName(t *testing.T) {
@@ -172,7 +200,7 @@ func TestResolveFileStripsModuleName(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	got := coverage.ResolveFile("mymod/myapp/pkg/foo.go", dir)
+	got := coverage.ResolveFile("pkg/foo.go", dir)
 	want := filepath.Join(dir, "pkg/foo.go")
 
 	assert.Equal(t, want, got)
