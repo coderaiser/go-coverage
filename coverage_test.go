@@ -7,139 +7,11 @@ import (
 	"strings"
 	"testing"
 
-	"coderaiser/go-coverage"
-	"coderaiser/go-coverage/internal/assert"
+	coverage "coderaiser/go-coverage"
+	tape "github.com/coderaiser/go-tape"
 
 	"github.com/lithammer/dedent"
 )
-
-func TestParseCoverageReturnsUncoveredBlocks(t *testing.T) {
-	input := dedent.Dedent(`
-        mode: set
-        github.com/app/main.go:5.1,8.2 3 1
-        github.com/app/main.go:10.1,12.2 2 0
-    `)
-
-	blocks := coverage.ParseCoverage(strings.NewReader(input))
-
-	assert.Equal(
-		t,
-		[]coverage.Block{
-			{
-				File:  "github.com/app/main.go",
-				Start: 10,
-				End:   12,
-			},
-		},
-		blocks,
-	)
-}
-
-func TestParseCoverageSkipsCoveredBlocks(t *testing.T) {
-	input := dedent.Dedent(`
-        mode: set
-        github.com/app/main.go:1.1,2.1 1 5
-    `)
-
-	blocks := coverage.ParseCoverage(strings.NewReader(input))
-
-	assert.Equal(t, []coverage.Block(nil), blocks)
-}
-
-func TestParseCoverageEmptyInput(t *testing.T) {
-	blocks := coverage.ParseCoverage(strings.NewReader("mode: set\n"))
-
-	assert.Equal(t, []coverage.Block(nil), blocks)
-}
-
-func TestFormatBlockWithoutLines(t *testing.T) {
-	got := coverage.FormatBlock(
-		coverage.Block{File: "main.go", Start: 10, End: 12},
-		"/",
-		nil,
-		false,
-	)
-
-	assert.Equal(t, "file://main.go:10: 10-12", got)
-}
-
-func TestFormatBlockWithLinesNoColor(t *testing.T) {
-	lines := []string{
-		"if x == nil {",
-		"    return err",
-		"}",
-	}
-
-	got := coverage.FormatBlock(
-		coverage.Block{File: "main.go", Start: 10, End: 12},
-		"/",
-		lines,
-		false,
-	)
-
-	assert.Contains(t, got, "10 | if x == nil {")
-}
-
-func TestFormatBlockWithLinesColor(t *testing.T) {
-	lines := []string{"return nil"}
-
-	got := coverage.FormatBlock(
-		coverage.Block{File: "main.go", Start: 5, End: 5},
-		"/",
-		lines,
-		true,
-	)
-
-	assert.Contains(t, got, "\033[31m")
-}
-
-func TestFormatBlockLineNumbers(t *testing.T) {
-	lines := []string{"a", "b", "c"}
-
-	got := coverage.FormatBlock(
-		coverage.Block{File: "f.go", Start: 20, End: 22},
-		"/",
-		lines,
-		false,
-	)
-
-	for i, want := range []string{"20", "21", "22"} {
-		if !strings.Contains(got, want) {
-			t.Errorf("line %d: want line number %s in output:\n%s", i, want, got)
-		}
-	}
-}
-
-func TestReadLinesReturnsCorrectRange(t *testing.T) {
-	content := "line1\nline2\nline3\nline4\nline5\n"
-
-	path := t.TempDir() + "/test.go"
-	if err := writeFile(path, content); err != nil {
-		t.Fatal(err)
-	}
-
-	lines, _ := coverage.ReadLines(path, 2, 4)
-
-	assert.Equal(t, []string{"line2", "line3", "line4"}, lines)
-}
-
-func TestReadLinesFileNotFound(t *testing.T) {
-	_, err := coverage.ReadLines("/nonexistent/file.go", 1, 5)
-
-	assert.Error(t, err)
-}
-
-func TestColorEnabled(t *testing.T) {
-	t.Setenv("COLOR", "1")
-
-	assert.Ok(t, coverage.ColorEnabled())
-}
-
-func TestColorDisabledByEnv(t *testing.T) {
-	t.Setenv("COLOR", "0")
-
-	assert.NotOk(t, coverage.ColorEnabled())
-}
 
 func writeFile(path, content string) error {
 	f, err := os.Create(path)
@@ -151,166 +23,224 @@ func writeFile(path, content string) error {
 	return err
 }
 
-func TestHighlightLinesReturnsANSI(t *testing.T) {
-	lines := []string{"func main() {", "\treturn", "}"}
+func TestParseCoverage(t *testing.T) {
+	tape.Test(t, "coverage: parse returns uncovered blocks", func(t *tape.T) {
+		input := dedent.Dedent(`
+            mode: set
+            github.com/app/main.go:5.1,8.2 3 1
+            github.com/app/main.go:10.1,12.2 2 0
+        `)
+		blocks := coverage.ParseCoverage(strings.NewReader(input))
+		t.Equal(blocks, []coverage.Block{
+			{File: "github.com/app/main.go", Start: 10, End: 12},
+		})
+		t.End()
+	})
 
-	got := coverage.HighlightLines(lines)
+	tape.Test(t, "coverage: parse skips covered blocks", func(t *tape.T) {
+		input := dedent.Dedent(`
+            mode: set
+            github.com/app/main.go:1.1,2.1 1 5
+        `)
+		blocks := coverage.ParseCoverage(strings.NewReader(input))
+		t.Equal(blocks, []coverage.Block(nil))
+		t.End()
+	})
 
-	assert.Contains(t, strings.Join(got, "\n"), "\033[")
+	tape.Test(t, "coverage: parse returns nil on empty input", func(t *tape.T) {
+		blocks := coverage.ParseCoverage(strings.NewReader("mode: set\n"))
+		t.Equal(blocks, []coverage.Block(nil))
+		t.End()
+	})
 }
 
-func TestHighlightLinesPreservesCount(t *testing.T) {
-	lines := []string{"func main() {", "\treturn", "}"}
+func TestFormatBlock(t *testing.T) {
+	tape.Test(t, "coverage: format block without lines", func(t *tape.T) {
+		got := coverage.FormatBlock(
+			coverage.Block{File: "main.go", Start: 10, End: 12},
+			"/", nil, false,
+		)
+		t.Equal(got, "file://main.go:10: 10-12")
+		t.End()
+	})
 
-	got := coverage.HighlightLines(lines)
+	tape.Test(t, "coverage: format block with lines contains line prefix", func(t *tape.T) {
+		lines := []string{"if x == nil {", "    return err", "}"}
+		got := coverage.FormatBlock(
+			coverage.Block{File: "main.go", Start: 10, End: 12},
+			"/", lines, false,
+		)
+		t.Match(got, "10 | if x == nil {")
+		t.End()
+	})
 
-	assert.Equal(t, len(lines), len(got))
+	tape.Test(t, "coverage: format block with color contains ANSI code", func(t *tape.T) {
+		lines := []string{"return nil"}
+		got := coverage.FormatBlock(
+			coverage.Block{File: "main.go", Start: 5, End: 5},
+			"/", lines, true,
+		)
+		t.Match(got, "\033[31m")
+		t.End()
+	})
+
+	tape.Test(t, "coverage: format block line number 20", func(t *tape.T) {
+		lines := []string{"a", "b", "c"}
+		got := coverage.FormatBlock(
+			coverage.Block{File: "f.go", Start: 20, End: 22},
+			"/", lines, false,
+		)
+		t.Match(got, "20")
+		t.End()
+	})
+
+	tape.Test(t, "coverage: format block line number 21", func(t *tape.T) {
+		lines := []string{"a", "b", "c"}
+		got := coverage.FormatBlock(
+			coverage.Block{File: "f.go", Start: 20, End: 22},
+			"/", lines, false,
+		)
+		t.Match(got, "21")
+		t.End()
+	})
+
+	tape.Test(t, "coverage: format block line number 22", func(t *tape.T) {
+		lines := []string{"a", "b", "c"}
+		got := coverage.FormatBlock(
+			coverage.Block{File: "f.go", Start: 20, End: 22},
+			"/", lines, false,
+		)
+		t.Match(got, "22")
+		t.End()
+	})
 }
 
-func TestHighlightLinesFallbackOnEmpty(t *testing.T) {
-	got := coverage.HighlightLines([]string{})
+func TestReadLines(t *testing.T) {
+	tape.Test(t, "coverage: ReadLines returns correct range", func(t *tape.T) {
+		path := t.TB().TempDir() + "/test.go"
+		if err := writeFile(path, "line1\nline2\nline3\nline4\nline5\n"); err != nil {
+			t.TB().Fatal(err)
+		}
+		lines, _ := coverage.ReadLines(path, 2, 4)
+		t.Equal(lines, []string{"line2", "line3", "line4"})
+		t.End()
+	})
 
-	assert.Equal(t, []string{""}, got)
+	tape.Test(t, "coverage: ReadLines returns error on missing file", func(t *tape.T) {
+		_, err := coverage.ReadLines("/nonexistent/file.go", 1, 5)
+		t.Error(err)
+		t.End()
+	})
 }
 
-func TestFindModuleReturnsRoot(t *testing.T) {
-	dir := t.TempDir()
-	writeFile(filepath.Join(dir, "go.mod"), "module mymod/myapp\n\ngo 1.22\n")
+func TestColorEnabled(t *testing.T) {
+	tape.Test(t, "coverage: ColorEnabled returns true when COLOR=1", func(t *tape.T) {
+		t.Setenv("COLOR", "1")
+		t.Ok(coverage.ColorEnabled())
+		t.End()
+	})
 
-	root, _ := coverage.FindModule(dir)
-
-	assert.Equal(t, dir, root)
+	tape.Test(t, "coverage: ColorEnabled returns false when COLOR=0", func(t *tape.T) {
+		t.Setenv("COLOR", "0")
+		t.NotOk(coverage.ColorEnabled())
+		t.End()
+	})
 }
 
-func TestFindModuleReturnsName(t *testing.T) {
-	dir := t.TempDir()
-	writeFile(filepath.Join(dir, "go.mod"), "module mymod/myapp\n\ngo 1.22\n")
+func TestHighlightLines(t *testing.T) {
+	tape.Test(t, "coverage: HighlightLines returns ANSI codes", func(t *tape.T) {
+		lines := []string{"func main() {", "\treturn", "}"}
+		got := coverage.HighlightLines(lines)
+		t.Match(strings.Join(got, "\n"), "\033[")
+		t.End()
+	})
 
-	_, name := coverage.FindModule(dir)
+	tape.Test(t, "coverage: HighlightLines preserves line count", func(t *tape.T) {
+		lines := []string{"func main() {", "\treturn", "}"}
+		got := coverage.HighlightLines(lines)
+		t.Equal(len(got), len(lines))
+		t.End()
+	})
 
-	assert.Equal(t, "mymod/myapp", name)
+	tape.Test(t, "coverage: HighlightLines returns fallback on empty input", func(t *tape.T) {
+		got := coverage.HighlightLines([]string{})
+		t.Equal(got, []string{""})
+		t.End()
+	})
 }
 
-func TestRelativeFileStripsModule(t *testing.T) {
-	got := coverage.RelativeFile("mymod/myapp/pkg/foo.go", "mymod/myapp")
-	assert.Equal(t, "pkg/foo.go", got)
+func TestFindModule(t *testing.T) {
+	tape.Test(t, "coverage: FindModule returns root dir", func(t *tape.T) {
+		dir := t.TB().TempDir()
+		writeFile(filepath.Join(dir, "go.mod"), "module mymod/myapp\n\ngo 1.22\n")
+		root, _ := coverage.FindModule(dir)
+		t.Equal(root, dir)
+		t.End()
+	})
+
+	tape.Test(t, "coverage: FindModule returns module name", func(t *tape.T) {
+		dir := t.TB().TempDir()
+		writeFile(filepath.Join(dir, "go.mod"), "module mymod/myapp\n\ngo 1.22\n")
+		_, name := coverage.FindModule(dir)
+		t.Equal(name, "mymod/myapp")
+		t.End()
+	})
 }
 
-func TestRelativeFileNoMatch(t *testing.T) {
-	got := coverage.RelativeFile("other/module/foo.go", "mymod/myapp")
-	assert.Equal(t, "other/module/foo.go", got)
+func TestRelativeFile(t *testing.T) {
+	tape.Test(t, "coverage: RelativeFile strips module prefix", func(t *tape.T) {
+		got := coverage.RelativeFile("mymod/myapp/pkg/foo.go", "mymod/myapp")
+		t.Equal(got, "pkg/foo.go")
+		t.End()
+	})
+
+	tape.Test(t, "coverage: RelativeFile returns path unchanged when no match", func(t *tape.T) {
+		got := coverage.RelativeFile("other/module/foo.go", "mymod/myapp")
+		t.Equal(got, "other/module/foo.go")
+		t.End()
+	})
 }
 
-func TestResolveFileStripsModuleName(t *testing.T) {
-	dir := t.TempDir()
+func TestResolveFile(t *testing.T) {
+	tape.Test(t, "coverage: ResolveFile strips module name from path", func(t *tape.T) {
+		dir := t.TB().TempDir()
+		if err := writeFile(filepath.Join(dir, "go.mod"), "module mymod/myapp\n\ngo 1.22\n"); err != nil {
+			t.TB().Fatal(err)
+		}
+		got := coverage.ResolveFile("pkg/foo.go", dir)
+		t.Equal(got, filepath.Join(dir, "pkg/foo.go"))
+		t.End()
+	})
 
-	if err := writeFile(filepath.Join(dir, "go.mod"), "module mymod/myapp\n\ngo 1.22\n"); err != nil {
-		t.Fatal(err)
-	}
-
-	got := coverage.ResolveFile("pkg/foo.go", dir)
-	want := filepath.Join(dir, "pkg/foo.go")
-
-	assert.Equal(t, want, got)
-}
-
-func TestResolveFileNoModule(t *testing.T) {
-	got := coverage.ResolveFile("some/path/foo.go", t.TempDir())
-	assert.Equal(t, "some/path/foo.go", got)
+	tape.Test(t, "coverage: ResolveFile returns path unchanged when no module", func(t *tape.T) {
+		got := coverage.ResolveFile("some/path/foo.go", t.TB().TempDir())
+		t.Equal(got, "some/path/foo.go")
+		t.End()
+	})
 }
 
 func TestMergeBlocks(t *testing.T) {
-	got := coverage.MergeBlocks([]coverage.Block{
-		{
-			File:  "a.go",
-			Start: 10,
-			End:   10,
-		},
-		{
-			File:  "a.go",
-			Start: 10,
-			End:   12,
-		},
-		{
-			File:  "a.go",
-			Start: 13,
-			End:   15,
-		},
+	tape.Test(t, "coverage: MergeBlocks merges overlapping same-file blocks", func(t *tape.T) {
+		got := coverage.MergeBlocks([]coverage.Block{
+			{File: "a.go", Start: 10, End: 10},
+			{File: "a.go", Start: 10, End: 12},
+			{File: "a.go", Start: 13, End: 15},
+		})
+		t.Equal(got, []coverage.Block{
+			{File: "a.go", Start: 10, End: 15},
+		})
+		t.End()
 	})
 
-	assert.Equal(
-		t,
-		[]coverage.Block{
-			{
-				File:  "a.go",
-				Start: 10,
-				End:   15,
-			},
-		},
-		got,
-	)
-}
-
-func TestMergeBlocksSortsAcrossFiles(t *testing.T) {
-	got := coverage.MergeBlocks([]coverage.Block{
-		{
-			File:  "b.go",
-			Start: 1,
-			End:   5,
-		},
-		{
-			File:  "a.go",
-			Start: 1,
-			End:   5,
-		},
+	tape.Test(t, "coverage: MergeBlocks keeps different files separate", func(t *tape.T) {
+		got := coverage.MergeBlocks([]coverage.Block{
+			{File: "b.go", Start: 1, End: 1},
+			{File: "a.go", Start: 1, End: 1},
+		})
+		t.Equal(got, []coverage.Block{
+			{File: "a.go", Start: 1, End: 1},
+			{File: "b.go", Start: 1, End: 1},
+		})
+		t.End()
 	})
-
-	assert.Equal(
-		t,
-		[]coverage.Block{
-			{
-				File:  "a.go",
-				Start: 1,
-				End:   5,
-			},
-			{
-				File:  "b.go",
-				Start: 1,
-				End:   5,
-			},
-		},
-		got,
-	)
-}
-
-func TestMergeBlocksKeepsNonAdjacentBlocks(t *testing.T) {
-	got := coverage.MergeBlocks([]coverage.Block{
-		{
-			File:  "a.go",
-			Start: 1,
-			End:   5,
-		},
-		{
-			File:  "a.go",
-			Start: 10,
-			End:   15,
-		},
-	})
-
-	assert.Equal(
-		t,
-		[]coverage.Block{
-			{
-				File:  "a.go",
-				Start: 1,
-				End:   5,
-			},
-			{
-				File:  "a.go",
-				Start: 10,
-				End:   15,
-			},
-		},
-		got,
-	)
 }
