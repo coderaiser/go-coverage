@@ -1,0 +1,45 @@
+name: Node CI
+permissions:
+  contents: write
+on:
+  push:
+    branches: master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NAME: coverage
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - uses: oven-sh/setup-bun@v2
+      - name: Install
+        run: |
+          bun install putout redrun palabra -g
+          palabra i task golangci-lint
+      - name: Lint
+        run: |
+          putout . --fix
+          golangci-lint run --fix
+      - name: Typos
+        uses: coderaiser/typos.ai@v1.1.8
+        with:
+          key: ${{ secrets.TYPOS_AI_KEY }}
+      - name: Commit fixes
+        continue-on-error: true
+        uses: EndBug/add-and-commit@v10
+        with:
+          fetch: --force
+          message: "chore: ${{ env.NAME }}: actions: lint ☘️"
+          pull: --rebase --autostash
+      - name: Build
+        run: redrun build
+      - name: Coverage
+        run: redrun coverage
+      - name: Coveralls
+        continue-on-error: true
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

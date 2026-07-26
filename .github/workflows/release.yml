@@ -1,27 +1,24 @@
 name: Release
-
 on:
   push:
     tags:
-      - 'v*'
-
+      - "*"
 permissions:
   contents: write
-
 jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
       - uses: actions/setup-go@v5
         with:
           go-version: stable
-
       - name: Run tests
         run: go test ./...
-
       - name: Check library coverage is 100%
         run: |
           go test \
@@ -33,25 +30,22 @@ jobs:
           # Fail if any function in coverage.go is below 100%
           go tool cover -func=coverage.out \
             | awk '/coverage\.go/ && $3!="100.0%" { print "FAIL: "$0; fail=1 } END { exit fail }'
-
   release:
     name: GoReleaser
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
-          fetch-depth: 0 
-
+          fetch-depth: 0
       - uses: actions/setup-go@v5
         with:
           go-version: stable
-
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v7
         with:
           distribution: goreleaser
-          version: '~> v2'
+          version: ~> v2
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

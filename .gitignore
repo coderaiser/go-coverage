@@ -1,8 +1,11 @@
 *.swp
 *.log
+*.lock
 
 .idea
 .DS_Store
+
 coverage.out
 coverage.html
+
 coverage

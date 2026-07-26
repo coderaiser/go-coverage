@@ -1,8 +1,6 @@
 version: 2
-
 builds:
   - main: ./cmd/coverage
     binary: coverage
-
 archives:
   - format: binary
