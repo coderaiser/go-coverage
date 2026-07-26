@@ -134,11 +134,47 @@ func RelativeFile(file, modName string) string {
 	return strings.TrimPrefix(file, modName+"/")
 }
 
+func TrimIndent(s string) string {
+	lines := strings.Split(s, "\n")
+
+	min := -1
+	for _, line := range lines {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+
+		n := 0
+		for n < len(line) && (line[n] == ' ' || line[n] == '\t') {
+			n++
+		}
+
+		if min == -1 || n < min {
+			min = n
+		}
+	}
+
+	if min <= 0 {
+		return s
+	}
+
+	for i, line := range lines {
+		if len(line) >= min {
+			lines[i] = line[min:]
+		}
+	}
+
+	return strings.Join(lines, "\n")
+}
+
 func HighlightLines(lines []string) []string {
 	src := strings.Join(lines, "\n")
 
 	var buf strings.Builder
-	err := highlight(&buf, src, "go", "terminal256", "monokai")
+	var formated = strings.ReplaceAll(src, "\t", "    ")
+	var trimmed = TrimIndent(formated)
+
+	err := highlight(&buf, trimmed, "go", "terminal256", "tokyonight-night")
+
 	if err != nil {
 		return lines
 	}
