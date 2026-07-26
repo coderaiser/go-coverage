@@ -3,8 +3,26 @@ package coverage
 import (
 	"fmt"
 	"io"
+	"strings"
 	"testing"
 )
+
+type errCloser struct {
+	io.Reader
+}
+
+func (e errCloser) Close() error {
+	return fmt.Errorf("close failed")
+}
+
+func TestReadLinesCloseError(t *testing.T) {
+	rc := errCloser{strings.NewReader("package main\n")}
+
+	_, err := readLines(rc, 1, 1)
+	if err == nil {
+		t.Fatal("expected error from close, got nil")
+	}
+}
 
 func TestHighlightLinesFallbackOnError(t *testing.T) {
 	old := highlight

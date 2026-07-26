@@ -1,6 +1,7 @@
 package coverage
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -8,6 +9,8 @@ import (
 
 	"github.com/BurntSushi/toml"
 )
+
+var ErrUncovered = errors.New("uncovered blocks found")
 
 type Config struct {
 	Exclude struct {
@@ -90,7 +93,7 @@ func Run(args []string, stdout io.Writer) error {
 	}
 
 	if reported > 0 {
-		os.Exit(1)
+		return ErrUncovered
 	}
 
 	fmt.Println("💪 coverage 100%, good job!")
