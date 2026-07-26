@@ -251,17 +251,17 @@ func TestMergeBlocks(t *testing.T) {
 	)
 }
 
-func TestMergeBlocksDifferentFiles(t *testing.T) {
+func TestMergeBlocksSortsAcrossFiles(t *testing.T) {
 	got := coverage.MergeBlocks([]coverage.Block{
 		{
 			File:  "b.go",
 			Start: 1,
-			End:   1,
+			End:   5,
 		},
 		{
 			File:  "a.go",
 			Start: 1,
-			End:   1,
+			End:   5,
 		},
 	})
 
@@ -271,12 +271,44 @@ func TestMergeBlocksDifferentFiles(t *testing.T) {
 			{
 				File:  "a.go",
 				Start: 1,
-				End:   1,
+				End:   5,
 			},
 			{
 				File:  "b.go",
 				Start: 1,
-				End:   1,
+				End:   5,
+			},
+		},
+		got,
+	)
+}
+
+func TestMergeBlocksKeepsNonAdjacentBlocks(t *testing.T) {
+	got := coverage.MergeBlocks([]coverage.Block{
+		{
+			File:  "a.go",
+			Start: 1,
+			End:   5,
+		},
+		{
+			File:  "a.go",
+			Start: 10,
+			End:   15,
+		},
+	})
+
+	assert.Equal(
+		t,
+		[]coverage.Block{
+			{
+				File:  "a.go",
+				Start: 1,
+				End:   5,
+			},
+			{
+				File:  "a.go",
+				Start: 10,
+				End:   15,
 			},
 		},
 		got,
