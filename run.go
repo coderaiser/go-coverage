@@ -64,6 +64,7 @@ func Run(args []string, stdout io.Writer) error {
 
 	color := ColorEnabled()
 
+	reported := 0
 	for _, b := range blocks {
 		if isExcluded(b.File, cfg.Exclude.Files) {
 			continue
@@ -85,13 +86,14 @@ func Run(args []string, stdout io.Writer) error {
 		if _, err := fmt.Fprintln(stdout, FormatBlock(b, dir, lines, color)); err != nil {
 			return err
 		}
+		reported++
 	}
 
-	if len(blocks) > 0 {
+	if reported > 0 {
 		os.Exit(1)
 	}
 
-	fmt.Println("💪 coverage 100%, good job!")
+    fmt.Println("💪 coverage 100%, good job!");
 
 	return nil
 }
