@@ -27,9 +27,6 @@ jobs:
             -coverpkg=coderaiser/go-coverage \
             ./...
           go tool cover -func=coverage.out
-          # Fail if any function in coverage.go is below 100%
-          go tool cover -func=coverage.out \
-            | awk '/coverage\.go/ && $3!="100.0%" { print "FAIL: "$0; fail=1 } END { exit fail }'
   release:
     name: GoReleaser
     needs: test

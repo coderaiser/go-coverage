@@ -1,0 +1,9 @@
+[flags]
+"-f"               = "path to coverage profile (default: coverage.out)"
+"--code-frame"     = "print file:line ranges with source"
+"-v, --version"    = "print version and exit"
+"-h, --help"       = "print this help and exit"
+
+[env]
+"COVERAGE=codeframe" = "force codeframe output regardless of screen size"
+"COVERAGE=lines"     = "force lines-only output regardless of screen size"

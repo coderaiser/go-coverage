@@ -12,6 +12,7 @@ tasks:
     cmds:
       - go test -coverprofile=coverage.out -covermode=atomic coderaiser/go-coverage > /dev/null
       - go tool cover -func=coverage.out | grep 'coverage\.go'
+      - coverage
   build:
     desc: Build the binary for the current platform
     cmds:

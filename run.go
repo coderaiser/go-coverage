@@ -38,8 +38,15 @@ func isExcluded(file string, patterns []string) bool {
 func Run(args []string, stdout io.Writer) error {
 	codeFrame := false
 	for _, a := range args {
-		if a == "--code-frame" {
+		switch a {
+		case "--code-frame":
 			codeFrame = true
+		case "-v", "--version":
+			fmt.Fprintln(stdout, VersionLine())
+			return nil
+		case "-h", "--help":
+			fmt.Fprint(stdout, Help())
+			return nil
 		}
 	}
 
