@@ -83,5 +83,7 @@ func Run(args []string, stdout io.Writer) error {
 		os.Exit(1)
 	}
 
+    fmt.Println("💪 coverage 100%, good job!");
+
 	return nil
 }

@@ -1,0 +1,19 @@
+version: "2"
+
+linters:
+  enable:
+    - exhaustive
+    - staticcheck
+    - unused
+    - gocritic
+    - misspell
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - errcheck
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
