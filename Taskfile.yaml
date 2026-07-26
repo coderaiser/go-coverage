@@ -29,13 +29,12 @@ tasks:
   lint:
     desc: Run go vet
     cmds:
-      - go vet ./...
       - go run ./cmd/lint ./...
+      - golangci-lint run
   fix:lint:
     desc: Run fix lint
     cmds:
-      - goimports -w .
-      - gofmt -w .
+      - golangci-lint run --fix
   clean:
     desc: Remove build artefacts
     cmds:

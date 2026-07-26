@@ -17,7 +17,9 @@ type Config struct {
 
 func loadConfig(path string) Config {
 	var cfg Config
-	toml.DecodeFile(path, &cfg)
+	if _, err := toml.DecodeFile(path, &cfg); err != nil && !os.IsNotExist(err) {
+		fmt.Fprintf(os.Stderr, "warning: could not load config: %v\n", err)
+	}
 	return cfg
 }
 
@@ -49,13 +51,17 @@ func Run(args []string, stdout io.Writer) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
 
 	cfg := loadConfig("coverage.toml")
 
 	dir, _ := os.Getwd()
 	_, modName := FindModule(dir)
 	blocks := ParseCoverage(f)
+
+	if err := f.Close(); err != nil {
+		return err
+	}
+
 	color := ColorEnabled()
 
 	for _, b := range blocks {
@@ -76,14 +82,16 @@ func Run(args []string, stdout io.Writer) error {
 			}
 		}
 
-		fmt.Fprintln(stdout, FormatBlock(b, dir, lines, color))
+		if _, err := fmt.Fprintln(stdout, FormatBlock(b, dir, lines, color)); err != nil {
+			return err
+		}
 	}
 
 	if len(blocks) > 0 {
 		os.Exit(1)
 	}
 
-    fmt.Println("💪 coverage 100%, good job!");
+	fmt.Println("💪 coverage 100%, good job!")
 
 	return nil
 }

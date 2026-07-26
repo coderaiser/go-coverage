@@ -99,14 +99,17 @@ func FindModule(dir string) (root, name string) {
 	return "", ""
 }
 
-func ReadLines(path string, start, end int) ([]string, error) {
+func ReadLines(path string, start, end int) (lines []string, err error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer func() {
+		if cerr := f.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
+	}()
 
-	var lines []string
 	scanner := bufio.NewScanner(f)
 
 	n := 0
