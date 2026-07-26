@@ -4,7 +4,8 @@ CLI tool that reads a Go `coverage.out` profile and prints coverage blocks.
 Optionally shows a code frame (source lines) around each coverage block.
 
 ```
-coverage [-f coverage.out] [--code-frame]
+$ coverage
+💪 coverage 100%, good job!
 ```
 
 | Flag | Default | Description |
