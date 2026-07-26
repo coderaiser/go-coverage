@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -64,7 +65,7 @@ func ParseCoverage(r io.Reader) []Block {
 		})
 	}
 
-	return blocks
+	return MergeBlocks(blocks)
 }
 
 func ResolveFile(file, dir string) string {
@@ -210,4 +211,35 @@ func FormatBlock(b Block, dir string, lines []string, color bool) string {
 	}
 
 	return strings.TrimRight(sb.String(), "\n")
+}
+
+func MergeBlocks(blocks []Block) []Block {
+	if len(blocks) == 0 {
+		return nil
+	}
+
+	sort.Slice(blocks, func(i, j int) bool {
+		if blocks[i].File == blocks[j].File {
+			return blocks[i].Start < blocks[j].Start
+		}
+		return blocks[i].File < blocks[j].File
+	})
+
+	merged := []Block{blocks[0]}
+
+	for _, current := range blocks[1:] {
+		last := &merged[len(merged)-1]
+
+		if last.File == current.File &&
+			current.Start <= last.End+1 {
+			if current.End > last.End {
+				last.End = current.End
+			}
+			continue
+		}
+
+		merged = append(merged, current)
+	}
+
+	return merged
 }

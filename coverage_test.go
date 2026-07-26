@@ -218,3 +218,35 @@ func TestResolveFileNoModule(t *testing.T) {
 	got := coverage.ResolveFile("some/path/foo.go", t.TempDir())
 	assert.Equal(t, "some/path/foo.go", got)
 }
+
+func TestMergeBlocks(t *testing.T) {
+	got := coverage.MergeBlocks([]coverage.Block{
+		{
+			File:  "a.go",
+			Start: 10,
+			End:   10,
+		},
+		{
+			File:  "a.go",
+			Start: 10,
+			End:   12,
+		},
+		{
+			File:  "a.go",
+			Start: 13,
+			End:   15,
+		},
+	})
+
+	assert.Equal(
+		t,
+		[]coverage.Block{
+			{
+				File:  "a.go",
+				Start: 10,
+				End:   15,
+			},
+		},
+		got,
+	)
+}

@@ -17,17 +17,21 @@ func TestHelpContainsUsage(t *testing.T) {
 func TestHelpContainsFlags(t *testing.T) {
 	got := coverage.Help()
 
-	assert.Contains(t, got, "-f")
-	assert.Contains(t, got, "--lines")
-	assert.Contains(t, got, "--help")
+	for _, flag := range []string{"-f", "--code-frame", "--help"} {
+		t.Run(flag, func(t *testing.T) {
+			assert.Contains(t, got, flag)
+		})
+	}
 }
 
 func TestHelpContainsEnvironmentVariables(t *testing.T) {
 	got := coverage.Help()
 
-	assert.Contains(t, got, "environment variables:")
-	assert.Contains(t, got, "COVERAGE=codeframe")
-	assert.Contains(t, got, "COVERAGE=lines")
+	for _, env := range []string{"environment variables:", "COVERAGE=codeframe", "COVERAGE=lines"} {
+		t.Run(env, func(t *testing.T) {
+			assert.Contains(t, got, env)
+		})
+	}
 }
 
 func TestHelpFlagsOrder(t *testing.T) {
@@ -35,8 +39,7 @@ func TestHelpFlagsOrder(t *testing.T) {
 
 	flags := []string{
 		"-f",
-		"--no-code-frame",
-		"--lines",
+		"--code-frame",
 		"-v, --version",
 		"-h, --help",
 	}

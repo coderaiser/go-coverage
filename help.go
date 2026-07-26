@@ -28,8 +28,7 @@ func HelpFromTOML(data []byte) string {
 
 	flagOrder := []string{
 		"-f",
-		"--no-code-frame",
-		"--lines",
+		"--code-frame",
 		"-v, --version",
 		"-h, --help",
 	}

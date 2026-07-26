@@ -42,10 +42,10 @@ func Run(args []string, stdout io.Writer) error {
 		case "--code-frame":
 			codeFrame = true
 		case "-v", "--version":
-			fmt.Fprintln(stdout, VersionLine())
+			_, _ = fmt.Fprintln(stdout, VersionLine())
 			return nil
 		case "-h", "--help":
-			fmt.Fprint(stdout, Help())
+			_, _ = fmt.Fprint(stdout, Help())
 			return nil
 		}
 	}
