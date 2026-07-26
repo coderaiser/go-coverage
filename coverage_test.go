@@ -250,3 +250,35 @@ func TestMergeBlocks(t *testing.T) {
 		got,
 	)
 }
+
+func TestMergeBlocksDifferentFiles(t *testing.T) {
+	got := coverage.MergeBlocks([]coverage.Block{
+		{
+			File:  "b.go",
+			Start: 1,
+			End:   1,
+		},
+		{
+			File:  "a.go",
+			Start: 1,
+			End:   1,
+		},
+	})
+
+	assert.Equal(
+		t,
+		[]coverage.Block{
+			{
+				File:  "a.go",
+				Start: 1,
+				End:   1,
+			},
+			{
+				File:  "b.go",
+				Start: 1,
+				End:   1,
+			},
+		},
+		got,
+	)
+}

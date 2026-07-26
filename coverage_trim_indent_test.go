@@ -76,3 +76,9 @@ if ok {
 func TestTrimIndentEmpty(t *testing.T) {
 	assert.Equal(t, "", coverage.TrimIndent(""))
 }
+
+func TestTrimIndentLeavesShortLinesUnchanged(t *testing.T) {
+	got := coverage.TrimIndent("   hello\n\n   world")
+
+	assert.Equal(t, "hello\n\nworld", got)
+}
