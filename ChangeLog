@@ -1,7 +1,7 @@
 2026.07.27, v1.0.3
 
 feature:
-- ccce4ba coverage: -v, --version, -h, --help
+- ccce4be coverage: -v, --version, -h, --help
 - 7161c68 coverage: tram indent
 
 2026.07.26, v1.0.2
