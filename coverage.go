@@ -170,8 +170,8 @@ func HighlightLines(lines []string) []string {
 	src := strings.Join(lines, "\n")
 
 	var buf strings.Builder
-	var formated = strings.ReplaceAll(src, "\t", "    ")
-	var trimmed = TrimIndent(formated)
+	var formatted = strings.ReplaceAll(src, "\t", "    ")
+	var trimmed = TrimIndent(formatted)
 
 	err := highlight(&buf, trimmed, "go", "terminal256", "tokyonight-night")
 
