@@ -36,15 +36,10 @@ func isExcluded(file string, patterns []string) bool {
 }
 
 func Run(args []string, stdout io.Writer) error {
-	codeFrame := true
-	linesOnly := false
+	codeFrame := false
 	for _, a := range args {
-		if a == "--no-code-frame" {
-			codeFrame = false
-		}
-		if a == "--lines" {
-			linesOnly = true
-			codeFrame = false
+		if a == "--code-frame" {
+			codeFrame = true
 		}
 	}
 
@@ -79,14 +74,6 @@ func Run(args []string, stdout io.Writer) error {
 		}
 
 		b.File = RelativeFile(b.File, modName)
-
-		if linesOnly {
-			if _, err := fmt.Fprintf(stdout, "%s:%d-%d\n", b.File, b.Start, b.End); err != nil {
-				return err
-			}
-			reported++
-			continue
-		}
 
 		var lines []string
 
