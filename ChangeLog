@@ -1,3 +1,11 @@
+2026.07.27, v1.1.1
+
+fix:
+- 14474de coverage: version
+
+feature:
+- 3087a65 linter: deep-equal
+
 2026.07.27, v1.1.0
 
 feature:
