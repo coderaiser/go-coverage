@@ -1,15 +1,27 @@
 package lint
 
 import (
+	"bytes"
 	"fmt"
+	"go/ast"
+	"go/format"
 	"go/parser"
 	"go/token"
 	"os"
 
+	"coderaiser/go-coverage/internal/lint/rule"
 	"coderaiser/go-coverage/internal/lint/rules"
 )
 
 func Run(files []string) bool {
+	return run(files, false)
+}
+
+func Fix(files []string) bool {
+	return run(files, true)
+}
+
+func run(files []string, fix bool) bool {
 	failed := false
 
 	for _, filename := range files {
@@ -34,8 +46,18 @@ func Run(files []string) bool {
 			continue
 		}
 
-		for _, rule := range rules.All {
-			results := rule.Check(file, fset)
+		modified := false
+
+		for _, r := range rules.All {
+			if fix {
+				if fixer, ok := r.(rule.Fixer); ok {
+					if fixer.Fix(file, fset) {
+						modified = true
+					}
+				}
+			}
+
+			results := r.Check(file, fset)
 
 			for _, result := range results {
 				failed = true
@@ -50,7 +72,21 @@ func Run(files []string) bool {
 				)
 			}
 		}
+
+		if modified {
+			if err := writeFormatted(filename, file, fset); err != nil {
+				fmt.Fprintf(os.Stderr, "file://%s: fix: %v\n", filename, err)
+			}
+		}
 	}
 
 	return failed
+}
+
+func writeFormatted(filename string, file *ast.File, fset *token.FileSet) error {
+	var buf bytes.Buffer
+	if err := format.Node(&buf, fset, file); err != nil {
+		return err
+	}
+	return os.WriteFile(filename, buf.Bytes(), 0644)
 }

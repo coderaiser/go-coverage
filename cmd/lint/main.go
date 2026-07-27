@@ -10,11 +10,29 @@ import (
 )
 
 func main() {
+	fix := false
 	args := os.Args[1:]
+
+	filtered := args[:0]
+	for _, a := range args {
+		if a == "--fix" {
+			fix = true
+		} else {
+			filtered = append(filtered, a)
+		}
+	}
+	args = filtered
 
 	files := expand(args)
 
-	if lint.Run(files) {
+	var failed bool
+	if fix {
+		failed = lint.Fix(files)
+	} else {
+		failed = lint.Run(files)
+	}
+
+	if failed {
 		os.Exit(1)
 	}
 }
