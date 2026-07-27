@@ -17,11 +17,12 @@ func TestTrimIndent(t *testing.T) {
 			return
 		}
 	`))
-		t.Equal(result, dedent.Dedent(`
+		expected := dedent.Dedent(`
 if ok {
 	return
 }
-`))
+`)
+		t.Equal(result, expected)
 		t.End()
 	})
 
@@ -33,13 +34,14 @@ if ok {
 			}
 		}
 	`))
-		t.Equal(result, dedent.Dedent(`
+		expected := dedent.Dedent(`
 if ok {
 	if nested {
 		return
 	}
 }
-`))
+`)
+		t.Equal(result, expected)
 		t.End()
 	})
 
@@ -52,19 +54,21 @@ if ok {
 		}
 
 	`))
-		t.Equal(result, dedent.Dedent(`
+		expected := dedent.Dedent(`
 
 if ok {
 
 	return
 }
 
-`))
+`)
+		t.Equal(result, expected)
 		t.End()
 	})
 
 	tape.Test(t, "coverage: TrimIndent returns empty string unchanged", func(t *tape.T) {
-		t.Equal(coverage.TrimIndent(""), "")
+		result := coverage.TrimIndent("")
+		t.Equal(result, "")
 		t.End()
 	})
 

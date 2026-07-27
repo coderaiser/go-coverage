@@ -32,9 +32,10 @@ func TestParseCoverage(t *testing.T) {
             github.com/app/main.go:10.1,12.2 2 0
         `)
 		blocks := coverage.ParseCoverage(strings.NewReader(input))
-		t.DeepEqual(blocks, []coverage.Block{
+		expected := []coverage.Block{
 			{File: "github.com/app/main.go", Start: 10, End: 12},
-		})
+		}
+		t.DeepEqual(blocks, expected)
 		t.End()
 	})
 
@@ -44,13 +45,15 @@ func TestParseCoverage(t *testing.T) {
             github.com/app/main.go:1.1,2.1 1 5
         `)
 		blocks := coverage.ParseCoverage(strings.NewReader(input))
-		t.DeepEqual(blocks, []coverage.Block(nil))
+		expected := []coverage.Block(nil)
+		t.DeepEqual(blocks, expected)
 		t.End()
 	})
 
 	tape.Test(t, "coverage: parse returns nil on empty input", func(t *tape.T) {
 		blocks := coverage.ParseCoverage(strings.NewReader("mode: set\n"))
-		t.DeepEqual(blocks, []coverage.Block(nil))
+		expected := []coverage.Block(nil)
+		t.DeepEqual(blocks, expected)
 		t.End()
 	})
 }
@@ -123,7 +126,8 @@ func TestReadLines(t *testing.T) {
 			t.TB().Fatal(err)
 		}
 		lines, _ := coverage.ReadLines(path, 2, 4)
-		t.DeepEqual(lines, []string{"line2", "line3", "line4"})
+		expected := []string{"line2", "line3", "line4"}
+		t.DeepEqual(lines, expected)
 		t.End()
 	})
 
@@ -137,13 +141,15 @@ func TestReadLines(t *testing.T) {
 func TestColorEnabled(t *testing.T) {
 	tape.Test(t, "coverage: ColorEnabled returns true when COLOR=1", func(t *tape.T) {
 		t.Setenv("COLOR", "1")
-		t.Ok(coverage.ColorEnabled())
+		result := coverage.ColorEnabled()
+		t.Ok(result)
 		t.End()
 	})
 
 	tape.Test(t, "coverage: ColorEnabled returns false when COLOR=0", func(t *tape.T) {
 		t.Setenv("COLOR", "0")
-		t.NotOk(coverage.ColorEnabled())
+		result := coverage.ColorEnabled()
+		t.NotOk(result)
 		t.End()
 	})
 }
@@ -159,13 +165,15 @@ func TestHighlightLines(t *testing.T) {
 	tape.Test(t, "coverage: HighlightLines preserves line count", func(t *tape.T) {
 		lines := []string{"func main() {", "\treturn", "}"}
 		result := coverage.HighlightLines(lines)
-		t.Equal(len(result), len(lines))
+		expected := len(lines)
+		t.Equal(len(result), expected)
 		t.End()
 	})
 
 	tape.Test(t, "coverage: HighlightLines returns fallback on empty input", func(t *tape.T) {
 		result := coverage.HighlightLines([]string{})
-		t.DeepEqual(result, []string{""})
+		expected := []string{""}
+		t.DeepEqual(result, expected)
 		t.End()
 	})
 }
@@ -209,7 +217,8 @@ func TestResolveFile(t *testing.T) {
 			t.TB().Fatal(err)
 		}
 		result := coverage.ResolveFile("pkg/foo.go", dir)
-		t.Equal(result, filepath.Join(dir, "pkg/foo.go"))
+		expected := filepath.Join(dir, "pkg/foo.go")
+		t.Equal(result, expected)
 		t.End()
 	})
 
@@ -227,9 +236,10 @@ func TestMergeBlocks(t *testing.T) {
 			{File: "a.go", Start: 10, End: 12},
 			{File: "a.go", Start: 13, End: 15},
 		})
-		t.DeepEqual(result, []coverage.Block{
+		expected := []coverage.Block{
 			{File: "a.go", Start: 10, End: 15},
-		})
+		}
+		t.DeepEqual(result, expected)
 		t.End()
 	})
 

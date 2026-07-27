@@ -11,37 +11,44 @@ import (
 
 func TestHelp(t *testing.T) {
 	tape.Test(t, "help: contains usage line", func(t *tape.T) {
-		t.Match(coverage.Help(), "usage: go-coverage [options]")
+		result := coverage.Help()
+		t.Match(result, "usage: go-coverage [options]")
 		t.End()
 	})
 
 	tape.Test(t, "help: contains -f flag", func(t *tape.T) {
-		t.Match(coverage.Help(), "-f")
+		result := coverage.Help()
+		t.Match(result, "-f")
 		t.End()
 	})
 
 	tape.Test(t, "help: contains --code-frame flag", func(t *tape.T) {
-		t.Match(coverage.Help(), "--code-frame")
+		result := coverage.Help()
+		t.Match(result, "--code-frame")
 		t.End()
 	})
 
 	tape.Test(t, "help: contains --help flag", func(t *tape.T) {
-		t.Match(coverage.Help(), "--help")
+		result := coverage.Help()
+		t.Match(result, "--help")
 		t.End()
 	})
 
 	tape.Test(t, "help: contains environment variables section", func(t *tape.T) {
-		t.Match(coverage.Help(), "environment variables:")
+		result := coverage.Help()
+		t.Match(result, "environment variables:")
 		t.End()
 	})
 
 	tape.Test(t, "help: contains COVERAGE=codeframe", func(t *tape.T) {
-		t.Match(coverage.Help(), "COVERAGE=codeframe")
+		result := coverage.Help()
+		t.Match(result, "COVERAGE=codeframe")
 		t.End()
 	})
 
 	tape.Test(t, "help: contains COVERAGE=lines", func(t *tape.T) {
-		t.Match(coverage.Help(), "COVERAGE=lines")
+		result := coverage.Help()
+		t.Match(result, "COVERAGE=lines")
 		t.End()
 	})
 
@@ -64,7 +71,8 @@ func TestHelp(t *testing.T) {
 	})
 
 	tape.Test(t, "help: HelpFromTOML returns fallback on invalid TOML", func(t *tape.T) {
-		t.Equal(coverage.HelpFromTOML([]byte(`{invalid`)), "usage: coverage [options]\n(help unavailable)")
+		result := coverage.HelpFromTOML([]byte(`{invalid`))
+		t.Equal(result, "usage: coverage [options]\n(help unavailable)")
 		t.End()
 	})
 }

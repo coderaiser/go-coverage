@@ -7,4 +7,5 @@ var All = []rule.Rule{
 	&NoSkip{},
 	&NoEqualSlice{},
 	&RequireTEnd{},
+	&ExtractResultFromAssertion{},
 }
