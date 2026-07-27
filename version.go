@@ -25,5 +25,5 @@ func Version() string {
 
 // VersionLine returns "go-coverage x.y.z" for -v output.
 func VersionLine() string {
-	return fmt.Sprintf("coverage %s", Version())
+	return fmt.Sprintf("v%s", Version())
 }

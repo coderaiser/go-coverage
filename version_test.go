@@ -25,7 +25,7 @@ func TestVersion(t *testing.T) {
 	})
 
 	tape.Test(t, "version: VersionLine contains binary name", func(t *tape.T) {
-		t.Match(coverage.VersionLine(), "coverage ")
+		t.Equal(coverage.VersionLine(), "v1.1.0")
 		t.End()
 	})
 }
