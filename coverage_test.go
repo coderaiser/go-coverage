@@ -57,61 +57,61 @@ func TestParseCoverage(t *testing.T) {
 
 func TestFormatBlock(t *testing.T) {
 	tape.Test(t, "coverage: format block without lines", func(t *tape.T) {
-		got := coverage.FormatBlock(
+		result := coverage.FormatBlock(
 			coverage.Block{File: "main.go", Start: 10, End: 12},
 			"/", nil, false,
 		)
-		t.Equal(got, "file://main.go:10: 10-12")
+		t.Equal(result, "file://main.go:10: 10-12")
 		t.End()
 	})
 
 	tape.Test(t, "coverage: format block with lines contains line prefix", func(t *tape.T) {
 		lines := []string{"if x == nil {", "    return err", "}"}
-		got := coverage.FormatBlock(
+		result := coverage.FormatBlock(
 			coverage.Block{File: "main.go", Start: 10, End: 12},
 			"/", lines, false,
 		)
-		t.Match(got, "10 | if x == nil {")
+		t.Match(result, "10 | if x == nil {")
 		t.End()
 	})
 
 	tape.Test(t, "coverage: format block with color contains ANSI code", func(t *tape.T) {
 		lines := []string{"return nil"}
-		got := coverage.FormatBlock(
+		result := coverage.FormatBlock(
 			coverage.Block{File: "main.go", Start: 5, End: 5},
 			"/", lines, true,
 		)
-		t.Match(got, "\033[31m")
+		t.Match(result, "\033[31m")
 		t.End()
 	})
 
 	tape.Test(t, "coverage: format block line number 20", func(t *tape.T) {
 		lines := []string{"a", "b", "c"}
-		got := coverage.FormatBlock(
+		result := coverage.FormatBlock(
 			coverage.Block{File: "f.go", Start: 20, End: 22},
 			"/", lines, false,
 		)
-		t.Match(got, "20")
+		t.Match(result, "20")
 		t.End()
 	})
 
 	tape.Test(t, "coverage: format block line number 21", func(t *tape.T) {
 		lines := []string{"a", "b", "c"}
-		got := coverage.FormatBlock(
+		result := coverage.FormatBlock(
 			coverage.Block{File: "f.go", Start: 20, End: 22},
 			"/", lines, false,
 		)
-		t.Match(got, "21")
+		t.Match(result, "21")
 		t.End()
 	})
 
 	tape.Test(t, "coverage: format block line number 22", func(t *tape.T) {
 		lines := []string{"a", "b", "c"}
-		got := coverage.FormatBlock(
+		result := coverage.FormatBlock(
 			coverage.Block{File: "f.go", Start: 20, End: 22},
 			"/", lines, false,
 		)
-		t.Match(got, "22")
+		t.Match(result, "22")
 		t.End()
 	})
 }
@@ -151,21 +151,21 @@ func TestColorEnabled(t *testing.T) {
 func TestHighlightLines(t *testing.T) {
 	tape.Test(t, "coverage: HighlightLines returns ANSI codes", func(t *tape.T) {
 		lines := []string{"func main() {", "\treturn", "}"}
-		got := coverage.HighlightLines(lines)
-		t.Match(strings.Join(got, "\n"), "\033[")
+		result := coverage.HighlightLines(lines)
+		t.Match(strings.Join(result, "\n"), "\033[")
 		t.End()
 	})
 
 	tape.Test(t, "coverage: HighlightLines preserves line count", func(t *tape.T) {
 		lines := []string{"func main() {", "\treturn", "}"}
-		got := coverage.HighlightLines(lines)
-		t.Equal(len(got), len(lines))
+		result := coverage.HighlightLines(lines)
+		t.Equal(len(result), len(lines))
 		t.End()
 	})
 
 	tape.Test(t, "coverage: HighlightLines returns fallback on empty input", func(t *tape.T) {
-		got := coverage.HighlightLines([]string{})
-		t.DeepEqual(got, []string{""})
+		result := coverage.HighlightLines([]string{})
+		t.DeepEqual(result, []string{""})
 		t.End()
 	})
 }
@@ -190,14 +190,14 @@ func TestFindModule(t *testing.T) {
 
 func TestRelativeFile(t *testing.T) {
 	tape.Test(t, "coverage: RelativeFile strips module prefix", func(t *tape.T) {
-		got := coverage.RelativeFile("mymod/myapp/pkg/foo.go", "mymod/myapp")
-		t.Equal(got, "pkg/foo.go")
+		result := coverage.RelativeFile("mymod/myapp/pkg/foo.go", "mymod/myapp")
+		t.Equal(result, "pkg/foo.go")
 		t.End()
 	})
 
 	tape.Test(t, "coverage: RelativeFile returns path unchanged when no match", func(t *tape.T) {
-		got := coverage.RelativeFile("other/module/foo.go", "mymod/myapp")
-		t.Equal(got, "other/module/foo.go")
+		result := coverage.RelativeFile("other/module/foo.go", "mymod/myapp")
+		t.Equal(result, "other/module/foo.go")
 		t.End()
 	})
 }
@@ -208,37 +208,37 @@ func TestResolveFile(t *testing.T) {
 		if err := writeFile(filepath.Join(dir, "go.mod"), "module mymod/myapp\n\ngo 1.22\n"); err != nil {
 			t.TB().Fatal(err)
 		}
-		got := coverage.ResolveFile("pkg/foo.go", dir)
-		t.Equal(got, filepath.Join(dir, "pkg/foo.go"))
+		result := coverage.ResolveFile("pkg/foo.go", dir)
+		t.Equal(result, filepath.Join(dir, "pkg/foo.go"))
 		t.End()
 	})
 
 	tape.Test(t, "coverage: ResolveFile returns path unchanged when no module", func(t *tape.T) {
-		got := coverage.ResolveFile("some/path/foo.go", t.TB().TempDir())
-		t.Equal(got, "some/path/foo.go")
+		result := coverage.ResolveFile("some/path/foo.go", t.TB().TempDir())
+		t.Equal(result, "some/path/foo.go")
 		t.End()
 	})
 }
 
 func TestMergeBlocks(t *testing.T) {
 	tape.Test(t, "coverage: MergeBlocks merges overlapping same-file blocks", func(t *tape.T) {
-		got := coverage.MergeBlocks([]coverage.Block{
+		result := coverage.MergeBlocks([]coverage.Block{
 			{File: "a.go", Start: 10, End: 10},
 			{File: "a.go", Start: 10, End: 12},
 			{File: "a.go", Start: 13, End: 15},
 		})
-		t.DeepEqual(got, []coverage.Block{
+		t.DeepEqual(result, []coverage.Block{
 			{File: "a.go", Start: 10, End: 15},
 		})
 		t.End()
 	})
 
 	tape.Test(t, "coverage: MergeBlocks keeps different files separate", func(t *tape.T) {
-		got := coverage.MergeBlocks([]coverage.Block{
+		result := coverage.MergeBlocks([]coverage.Block{
 			{File: "b.go", Start: 1, End: 1},
 			{File: "a.go", Start: 1, End: 1},
 		})
-		t.DeepEqual(got, []coverage.Block{
+		t.DeepEqual(result, []coverage.Block{
 			{File: "a.go", Start: 1, End: 1},
 			{File: "b.go", Start: 1, End: 1},
 		})

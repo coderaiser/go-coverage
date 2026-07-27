@@ -3,54 +3,47 @@ package coverage_test
 import (
 	"testing"
 
-	"coderaiser/go-coverage"
-	"coderaiser/go-coverage/internal/assert"
+	coverage "coderaiser/go-coverage"
+	tape "github.com/coderaiser/go-tape"
 
 	"github.com/lithammer/dedent"
 )
 
-func TestTrimIndentRemovesCommonIndent(t *testing.T) {
-	got := coverage.TrimIndent(dedent.Dedent(`
+func TestTrimIndent(t *testing.T) {
+	tape.Test(t, "coverage: TrimIndent removes common indent", func(t *tape.T) {
+		result := coverage.TrimIndent(dedent.Dedent(`
 		if ok {
 			return
 		}
 	`))
-
-	assert.Equal(
-		t,
-		dedent.Dedent(`
+		t.Equal(result, dedent.Dedent(`
 if ok {
 	return
 }
-`),
-		got,
-	)
-}
+`))
+		t.End()
+	})
 
-func TestTrimIndentPreservesRelativeIndent(t *testing.T) {
-	got := coverage.TrimIndent(dedent.Dedent(`
+	tape.Test(t, "coverage: TrimIndent preserves relative indent", func(t *tape.T) {
+		result := coverage.TrimIndent(dedent.Dedent(`
 		if ok {
 			if nested {
 				return
 			}
 		}
 	`))
-
-	assert.Equal(
-		t,
-		dedent.Dedent(`
+		t.Equal(result, dedent.Dedent(`
 if ok {
 	if nested {
 		return
 	}
 }
-`),
-		got,
-	)
-}
+`))
+		t.End()
+	})
 
-func TestTrimIndentIgnoresBlankLines(t *testing.T) {
-	got := coverage.TrimIndent(dedent.Dedent(`
+	tape.Test(t, "coverage: TrimIndent ignores blank lines", func(t *tape.T) {
+		result := coverage.TrimIndent(dedent.Dedent(`
 
 		if ok {
 
@@ -58,27 +51,25 @@ func TestTrimIndentIgnoresBlankLines(t *testing.T) {
 		}
 
 	`))
-
-	assert.Equal(
-		t,
-		dedent.Dedent(`
+		t.Equal(result, dedent.Dedent(`
 
 if ok {
 
 	return
 }
 
-`),
-		got,
-	)
-}
+`))
+		t.End()
+	})
 
-func TestTrimIndentEmpty(t *testing.T) {
-	assert.Equal(t, "", coverage.TrimIndent(""))
-}
+	tape.Test(t, "coverage: TrimIndent returns empty string unchanged", func(t *tape.T) {
+		t.Equal(coverage.TrimIndent(""), "")
+		t.End()
+	})
 
-func TestTrimIndentLeavesShortLinesUnchanged(t *testing.T) {
-	got := coverage.TrimIndent("   hello\n\n   world")
-
-	assert.Equal(t, "hello\n\nworld", got)
+	tape.Test(t, "coverage: TrimIndent removes leading spaces", func(t *tape.T) {
+		result := coverage.TrimIndent("   hello\n\n   world")
+		t.Equal(result, "hello\n\nworld")
+		t.End()
+	})
 }

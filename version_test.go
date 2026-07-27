@@ -3,30 +3,28 @@ package coverage_test
 import (
 	"testing"
 
-	"coderaiser/go-coverage"
-	"coderaiser/go-coverage/internal/assert"
+	coverage "coderaiser/go-coverage"
+	tape "github.com/coderaiser/go-tape"
 )
 
-func TestVersionFromJSONReturnsVersion(t *testing.T) {
-	got := coverage.VersionFromJSON([]byte(`{"version":"1.2.3"}`))
+func TestVersion(t *testing.T) {
+	tape.Test(t, "version: VersionFromJSON returns version string", func(t *tape.T) {
+		t.Equal(coverage.VersionFromJSON([]byte(`{"version":"1.2.3"}`)), "1.2.3")
+		t.End()
+	})
 
-	assert.Equal(t, "1.2.3", got)
-}
+	tape.Test(t, "version: VersionFromJSON returns unknown on invalid JSON", func(t *tape.T) {
+		t.Equal(coverage.VersionFromJSON([]byte(`{invalid`)), "unknown")
+		t.End()
+	})
 
-func TestVersionFromJSONReturnsUnknownOnInvalidJSON(t *testing.T) {
-	got := coverage.VersionFromJSON([]byte(`{invalid`))
+	tape.Test(t, "version: VersionFromJSON returns unknown on empty version", func(t *tape.T) {
+		t.Equal(coverage.VersionFromJSON([]byte(`{"version":""}`)), "unknown")
+		t.End()
+	})
 
-	assert.Equal(t, "unknown", got)
-}
-
-func TestVersionFromJSONReturnsUnknownOnEmptyVersion(t *testing.T) {
-	got := coverage.VersionFromJSON([]byte(`{"version":""}`))
-
-	assert.Equal(t, "unknown", got)
-}
-
-func TestVersionLine(t *testing.T) {
-	got := coverage.VersionLine()
-
-	assert.Contains(t, got, "coverage ")
+	tape.Test(t, "version: VersionLine contains binary name", func(t *tape.T) {
+		t.Match(coverage.VersionLine(), "coverage ")
+		t.End()
+	})
 }
