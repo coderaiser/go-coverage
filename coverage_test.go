@@ -238,10 +238,13 @@ func TestMergeBlocks(t *testing.T) {
 			{File: "b.go", Start: 1, End: 1},
 			{File: "a.go", Start: 1, End: 1},
 		})
-		t.DeepEqual(result, []coverage.Block{
+
+		expected := []coverage.Block{
 			{File: "a.go", Start: 1, End: 1},
 			{File: "b.go", Start: 1, End: 1},
-		})
+		}
+
+		t.DeepEqual(result, expected)
 		t.End()
 	})
 }
