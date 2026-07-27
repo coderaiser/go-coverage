@@ -37,31 +37,13 @@ COLOR=0 coverage -f coverage.out
 
 ## Install
 
-**From source (requires Go 1.22+)**
-
-```sh
-git clone https://github.com/coderaiser/go-coverage.git
-cd coverage
-go install ./cmd/coverage
-```
-
-**Pre-built binaries**
-
-Download the binary for your platform from the
-[Releases](https://github.com/your-org/coverage/releases) page:
-
-| OS | Arch | File |
-|----|------|------|
-| Linux | amd64 | `coverage-linux-amd64` |
-| Linux | arm64 | `coverage-linux-arm64` |
-| macOS | amd64 | `coverage-darwin-amd64` |
-| macOS | arm64 | `coverage-darwin-arm64` |
-| Windows | amd64 | `coverage-windows-amd64.exe` |
-| Windows | arm64 | `coverage-windows-arm64.exe` |
+The simplest possible way is with [palabra](https://github.com/coderaiser/palabra):
 
 ```sh
 palabra i coverage
 ```
+
+Or just grab binaries from [releases](https://github.com/coderaiser/go-coverage/releases)
 
 ## Running tests
 
