@@ -43,6 +43,5 @@ tasks:
   run:
     desc: |
       Run coverage against a coverage profile.
-      Usage: task run -- -f myproject.out --code-frame
     cmds:
-      - go run ./cmd/coverage {{.CLI_ARGS}}
+      - go run ./cmd/coverage 
