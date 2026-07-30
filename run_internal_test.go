@@ -63,7 +63,7 @@ func TestRunHelp(t *testing.T) {
 	}
 }
 
-func isExcludedTest(t *testing.T) {
+func TestIsExcluded(t *testing.T) {
     Test(t, "isExcluded: **", func(t *T) {
         mod := "coderaiser/go-tape"
         result := isExcluded("coderaiser/go-tape/internal/lint/rules/require-t-end.go", []string{"run.go", "**/lint", "**/coverage"}, mod)
