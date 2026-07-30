@@ -257,12 +257,12 @@ func TestMergeBlocks(t *testing.T) {
 		t.DeepEqual(result, expected)
 		t.End()
 	})
-tape.Test(t, "coverage: format block single line omits range", func(t *tape.T) {
-    result := coverage.FormatBlock(
-        coverage.Block{File: "main.go", Start: 24, End: 24},
-        "/", nil, false,
-    )
-    t.Equal(result, "file://main.go:24: 24")
-    t.End()
-})
+	tape.Test(t, "coverage: format block single line omits range", func(t *tape.T) {
+		result := coverage.FormatBlock(
+			coverage.Block{File: "main.go", Start: 24, End: 24},
+			"/", nil, false,
+		)
+		t.Equal(result, "file://main.go:24: 24")
+		t.End()
+	})
 }
