@@ -187,7 +187,7 @@ func HighlightLines(lines []string) []string {
 func FormatBlock(b Block, dir string, lines []string, color bool) string {
 	var absolute = ResolveFile(b.File, dir)
 	var header string
-
+ 
 	if b.Start == b.End {
 		header = fmt.Sprintf("file://%s:%d: %d", absolute, b.Start, b.Start)
 	} else {

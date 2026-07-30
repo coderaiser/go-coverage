@@ -3,6 +3,7 @@ package coverage
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"io"
 	"os"
 	"os/exec"
@@ -64,27 +65,28 @@ func loadConfig(path string) Config {
 	return cfg
 }
 
-func isExcluded(file string, patterns []string) bool {
-	file = filepath.ToSlash(file)
+func isExcluded(file string, patterns []string, modName string) bool {
+    // Strip module prefix → "github.com/foo/bar/run.go" becomes "run.go"
+    file = strings.TrimPrefix(filepath.ToSlash(file), modName+"/")
 
-	// Make path relative to project root if needed
-	// Example: /Users/coderaiser/go-coverage/run.go -> run.go
-	root := "/Users/coderaiser/go-coverage"
-	if rel, err := filepath.Rel(root, file); err == nil {
-		file = filepath.ToSlash(rel)
-	}
+    for _, p := range patterns {
+        p = strings.TrimPrefix(filepath.ToSlash(p), "./")
 
-	for _, p := range patterns {
-		p = filepath.ToSlash(p)
+        if ok, _ := doublestar.Match(p, file); ok {
+            return true
+        }
 
-		if ok, err := doublestar.Match(p, file); err == nil && ok {
-			return true
-		}
-	}
+        // If pattern doesn't already end in /**, also try matching files
+        // inside that directory: "**/coverage" should exclude "cmd/coverage/main.go"
+        if !strings.HasSuffix(p, "/**") {
+            if ok, _ := doublestar.Match(p+"/**", file); ok {
+                return true
+            }
+        }
+    }
 
-	return false
+    return false
 }
-
 
 func Run(args []string, stdout io.Writer) error {
 	codeFrame := false
@@ -120,7 +122,7 @@ func Run(args []string, stdout io.Writer) error {
 
 	reported := 0
 	for _, b := range blocks {
-		if isExcluded(b.File, cfg.Exclude.Files) {
+		if isExcluded(b.File, cfg.Exclude.Files, modName) {
 			continue
 		}
 
