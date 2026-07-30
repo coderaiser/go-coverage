@@ -5,12 +5,50 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
+	"os/exec"
+	"path/filepath"
 
 	"github.com/BurntSushi/toml"
+    "github.com/bmatcuk/doublestar/v4"
 )
 
 var ErrUncovered = errors.New("uncovered blocks found")
+
+var runGoTest = func() (io.ReadCloser, error) {
+	f, err := os.CreateTemp("", "coverage-*.out")
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := exec.Command("go", "test", "-coverprofile="+f.Name(), "-covermode=atomic", "./...")
+	cmd.Stderr = nil
+	cmd.Stdout = nil
+
+	if err := cmd.Run(); err != nil {
+		f.Close()
+		os.Remove(f.Name())
+		return nil, err
+	}
+
+	if _, err := f.Seek(0, 0); err != nil {
+		f.Close()
+		os.Remove(f.Name())
+		return nil, err
+	}
+
+	return &tempFile{f}, nil
+}
+
+type tempFile struct {
+	*os.File
+}
+
+func (t *tempFile) Close() error {
+	name := t.File.Name()
+	err := t.File.Close()
+	os.Remove(name)
+	return err
+}
 
 type Config struct {
 	Exclude struct {
@@ -27,13 +65,26 @@ func loadConfig(path string) Config {
 }
 
 func isExcluded(file string, patterns []string) bool {
+	file = filepath.ToSlash(file)
+
+	// Make path relative to project root if needed
+	// Example: /Users/coderaiser/go-coverage/run.go -> run.go
+	root := "/Users/coderaiser/go-coverage"
+	if rel, err := filepath.Rel(root, file); err == nil {
+		file = filepath.ToSlash(rel)
+	}
+
 	for _, p := range patterns {
-		if strings.Contains(file, p) {
+		p = filepath.ToSlash(p)
+
+		if ok, err := doublestar.Match(p, file); err == nil && ok {
 			return true
 		}
 	}
+
 	return false
 }
+
 
 func Run(args []string, stdout io.Writer) error {
 	codeFrame := false
@@ -50,14 +101,7 @@ func Run(args []string, stdout io.Writer) error {
 		}
 	}
 
-	path := "coverage.out"
-	for i, a := range args {
-		if a == "-f" && i+1 < len(args) {
-			path = args[i+1]
-		}
-	}
-
-	f, err := os.Open(path)
+	r, err := runGoTest()
 	if err != nil {
 		return err
 	}
@@ -66,9 +110,9 @@ func Run(args []string, stdout io.Writer) error {
 
 	dir, _ := os.Getwd()
 	_, modName := FindModule(dir)
-	blocks := ParseCoverage(f)
+	blocks := ParseCoverage(r)
 
-	if err := f.Close(); err != nil {
+	if err := r.Close(); err != nil {
 		return err
 	}
 
