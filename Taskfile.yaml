@@ -44,4 +44,4 @@ tasks:
     desc: |
       Run coverage against a coverage profile.
     cmds:
-      - go run ./cmd/coverage 
+      - go run ./cmd/coverage
