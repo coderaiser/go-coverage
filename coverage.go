@@ -216,7 +216,7 @@ func FormatBlock(b Block, dir string, lines []string, color bool) string {
 		fmt.Fprintf(&sb, "%s%4d%s | %s\n", dim, lineNum, reset, line)
 	}
 
-	return strings.TrimRight(sb.String(), "\n")
+	return strings.TrimRight(sb.String(), "\n") + "\n"
 }
 
 func MergeBlocks(blocks []Block) []Block {
