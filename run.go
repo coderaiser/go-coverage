@@ -3,14 +3,14 @@ package coverage
 import (
 	"errors"
 	"fmt"
-	"strings"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/BurntSushi/toml"
-    "github.com/bmatcuk/doublestar/v4"
+	"github.com/bmatcuk/doublestar/v4"
 )
 
 var ErrUncovered = errors.New("uncovered blocks found")
@@ -21,34 +21,43 @@ var runGoTest = func() (io.ReadCloser, error) {
 		return nil, err
 	}
 
+	cleanup := func() {
+		if err := f.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: close temp file: %v\n", err)
+		}
+		if err := os.Remove(f.Name()); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: remove temp file: %v\n", err)
+		}
+	}
+
 	cmd := exec.Command("go", "test", "-coverprofile="+f.Name(), "-covermode=atomic", "./...")
 	cmd.Stderr = nil
 	cmd.Stdout = nil
 
 	if err := cmd.Run(); err != nil {
-		f.Close()
-		os.Remove(f.Name())
+		cleanup()
 		return nil, err
 	}
 
 	if _, err := f.Seek(0, 0); err != nil {
-		f.Close()
-		os.Remove(f.Name())
+		cleanup()
 		return nil, err
 	}
 
 	return &tempFile{f}, nil
 }
 
-type tempFile struct {
-	*os.File
+func (t *tempFile) Close() error {
+	name := t.Name()
+	err := t.File.Close()
+	if removeErr := os.Remove(name); removeErr != nil && err == nil {
+		err = removeErr
+	}
+	return err
 }
 
-func (t *tempFile) Close() error {
-	name := t.File.Name()
-	err := t.File.Close()
-	os.Remove(name)
-	return err
+type tempFile struct {
+	*os.File
 }
 
 type Config struct {
@@ -66,26 +75,26 @@ func loadConfig(path string) Config {
 }
 
 func isExcluded(file string, patterns []string, modName string) bool {
-    // Strip module prefix → "github.com/foo/bar/run.go" becomes "run.go"
-    file = strings.TrimPrefix(filepath.ToSlash(file), modName+"/")
+	// Strip module prefix → "github.com/foo/bar/run.go" becomes "run.go"
+	file = strings.TrimPrefix(filepath.ToSlash(file), modName+"/")
 
-    for _, p := range patterns {
-        p = strings.TrimPrefix(filepath.ToSlash(p), "./")
+	for _, p := range patterns {
+		p = strings.TrimPrefix(filepath.ToSlash(p), "./")
 
-        if ok, _ := doublestar.Match(p, file); ok {
-            return true
-        }
+		if ok, _ := doublestar.Match(p, file); ok {
+			return true
+		}
 
-        // If pattern doesn't already end in /**, also try matching files
-        // inside that directory: "**/coverage" should exclude "cmd/coverage/main.go"
-        if !strings.HasSuffix(p, "/**") {
-            if ok, _ := doublestar.Match(p+"/**", file); ok {
-                return true
-            }
-        }
-    }
+		// If pattern doesn't already end in /**, also try matching files
+		// inside that directory: "**/coverage" should exclude "cmd/coverage/main.go"
+		if !strings.HasSuffix(p, "/**") {
+			if ok, _ := doublestar.Match(p+"/**", file); ok {
+				return true
+			}
+		}
+	}
 
-    return false
+	return false
 }
 
 func Run(args []string, stdout io.Writer) error {

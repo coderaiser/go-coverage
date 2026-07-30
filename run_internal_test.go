@@ -4,6 +4,7 @@ import (
 	"io"
 	"strings"
 	"testing"
+
 	. "github.com/coderaiser/go-tape"
 )
 
@@ -64,17 +65,17 @@ func TestRunHelp(t *testing.T) {
 }
 
 func TestIsExcluded(t *testing.T) {
-    Test(t, "isExcluded: **", func(t *T) {
-        mod := "coderaiser/go-tape"
-        result := isExcluded("coderaiser/go-tape/internal/lint/rules/require-t-end.go", []string{"run.go", "**/lint", "**/coverage"}, mod)
-        t.Ok(result)
-        t.End()
-    })
+	Test(t, "isExcluded: **", func(t *T) {
+		mod := "coderaiser/go-tape"
+		result := isExcluded("coderaiser/go-tape/internal/lint/rules/require-t-end.go", []string{"run.go", "**/lint", "**/coverage"}, mod)
+		t.Ok(result)
+		t.End()
+	})
 
-    Test(t, "isExcluded: root", func(t *T) {
-        mod := "coderaiser/go-tape"
-        result := isExcluded("coderaiser/go-tape/cmd/coverage/main.go", []string{"run.go", "**/lint", "**/coverage"}, mod)
-        t.Ok(result)
-        t.End()
-    })
+	Test(t, "isExcluded: root", func(t *T) {
+		mod := "coderaiser/go-tape"
+		result := isExcluded("coderaiser/go-tape/cmd/coverage/main.go", []string{"run.go", "**/lint", "**/coverage"}, mod)
+		t.Ok(result)
+		t.End()
+	})
 }
