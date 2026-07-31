@@ -1,7 +1,6 @@
 # coverage
 
-CLI tool that reads a Go `coverage.out` profile and prints coverage blocks.
-Optionally shows a code frame (source lines) around each coverage block.
+CLI tool that runs `go test` and prints uncovered blocks.
 
 ```
 $ coverage
@@ -10,29 +9,25 @@ $ coverage
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `-f / --f` | `coverage.out` | Path to the coverage profile |
-| `--code-frame / -code-frame` | off | Print source lines around each block |
+| `-f, --format` | `lines` | Output format: `lines`, `code-frame`, `json-lines` |
 
 ## Quick start
 
 ```sh
-# 1. Generate a coverage profile for your own project
-go test -coverprofile=coverage.out ./...
-
-# 2. Show coverage blocks
+# Show uncovered blocks
 coverage
 
-# 3. Show coverage blocks with source context
-coverage --code-frame
+# Show with source context
+coverage -f code-frame
 
-# 4. Point at a custom profile
-coverage -f /tmp/myproject.out --code-frame
+# Machine-readable JSON output
+coverage -f json-lines
 ```
 
 Set `COLOR=0` to disable ANSI colours (useful in CI or when piping output).
 
 ```sh
-COLOR=0 coverage -f coverage.out
+COLOR=0 coverage
 ```
 
 ## Install
