@@ -18,7 +18,7 @@ jobs:
       - name: Install
         run: |
           bun install putout redrun palabra -g
-          palabra i task golangci-lint
+          palabra i task coverage golangci-lint
       - name: Lint
         run: |
           putout . --fix
