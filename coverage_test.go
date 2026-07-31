@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	coverage "coderaiser/go-coverage"
+	"coderaiser/go-coverage/internal/block"
 
 	tape "github.com/coderaiser/go-tape"
 
@@ -32,7 +33,7 @@ func TestParseCoverage(t *testing.T) {
             github.com/app/main.go:10.1,12.2 2 0
         `)
 		blocks := coverage.ParseCoverage(strings.NewReader(input))
-		expected := []coverage.Block{
+		expected := []block.Block{
 			{File: "github.com/app/main.go", Start: 10, End: 12},
 		}
 		t.DeepEqual(blocks, expected)
@@ -45,76 +46,15 @@ func TestParseCoverage(t *testing.T) {
             github.com/app/main.go:1.1,2.1 1 5
         `)
 		blocks := coverage.ParseCoverage(strings.NewReader(input))
-		expected := []coverage.Block(nil)
+		expected := []block.Block(nil)
 		t.DeepEqual(blocks, expected)
 		t.End()
 	})
 
 	tape.Test(t, "coverage: parse returns nil on empty input", func(t *tape.T) {
 		blocks := coverage.ParseCoverage(strings.NewReader("mode: set\n"))
-		expected := []coverage.Block(nil)
+		expected := []block.Block(nil)
 		t.DeepEqual(blocks, expected)
-		t.End()
-	})
-}
-
-func TestFormatBlock(t *testing.T) {
-	tape.Test(t, "coverage: format block without lines", func(t *tape.T) {
-		result := coverage.FormatBlock(
-			coverage.Block{File: "main.go", Start: 10, End: 12},
-			"/", nil, false,
-		)
-		t.Equal(result, "file://main.go:10: 10-12")
-		t.End()
-	})
-
-	tape.Test(t, "coverage: format block with lines contains line prefix", func(t *tape.T) {
-		lines := []string{"if x == nil {", "    return err", "}"}
-		result := coverage.FormatBlock(
-			coverage.Block{File: "main.go", Start: 10, End: 12},
-			"/", lines, false,
-		)
-		t.Match(result, "10 | if x == nil {")
-		t.End()
-	})
-
-	tape.Test(t, "coverage: format block with color contains ANSI code", func(t *tape.T) {
-		lines := []string{"return nil"}
-		result := coverage.FormatBlock(
-			coverage.Block{File: "main.go", Start: 5, End: 5},
-			"/", lines, true,
-		)
-		t.Match(result, "\033[31m")
-		t.End()
-	})
-
-	tape.Test(t, "coverage: format block line number 20", func(t *tape.T) {
-		lines := []string{"a", "b", "c"}
-		result := coverage.FormatBlock(
-			coverage.Block{File: "f.go", Start: 20, End: 22},
-			"/", lines, false,
-		)
-		t.Match(result, "20")
-		t.End()
-	})
-
-	tape.Test(t, "coverage: format block line number 21", func(t *tape.T) {
-		lines := []string{"a", "b", "c"}
-		result := coverage.FormatBlock(
-			coverage.Block{File: "f.go", Start: 20, End: 22},
-			"/", lines, false,
-		)
-		t.Match(result, "21")
-		t.End()
-	})
-
-	tape.Test(t, "coverage: format block line number 22", func(t *tape.T) {
-		lines := []string{"a", "b", "c"}
-		result := coverage.FormatBlock(
-			coverage.Block{File: "f.go", Start: 20, End: 22},
-			"/", lines, false,
-		)
-		t.Match(result, "22")
 		t.End()
 	})
 }
@@ -231,12 +171,12 @@ func TestResolveFile(t *testing.T) {
 
 func TestMergeBlocks(t *testing.T) {
 	tape.Test(t, "coverage: MergeBlocks merges overlapping same-file blocks", func(t *tape.T) {
-		result := coverage.MergeBlocks([]coverage.Block{
+		result := coverage.MergeBlocks([]block.Block{
 			{File: "a.go", Start: 10, End: 10},
 			{File: "a.go", Start: 10, End: 12},
 			{File: "a.go", Start: 13, End: 15},
 		})
-		expected := []coverage.Block{
+		expected := []block.Block{
 			{File: "a.go", Start: 10, End: 15},
 		}
 		t.DeepEqual(result, expected)
@@ -244,25 +184,15 @@ func TestMergeBlocks(t *testing.T) {
 	})
 
 	tape.Test(t, "coverage: MergeBlocks keeps different files separate", func(t *tape.T) {
-		result := coverage.MergeBlocks([]coverage.Block{
+		result := coverage.MergeBlocks([]block.Block{
 			{File: "b.go", Start: 1, End: 1},
 			{File: "a.go", Start: 1, End: 1},
 		})
-
-		expected := []coverage.Block{
+		expected := []block.Block{
 			{File: "a.go", Start: 1, End: 1},
 			{File: "b.go", Start: 1, End: 1},
 		}
-
 		t.DeepEqual(result, expected)
-		t.End()
-	})
-	tape.Test(t, "coverage: format block single line omits range", func(t *tape.T) {
-		result := coverage.FormatBlock(
-			coverage.Block{File: "main.go", Start: 24, End: 24},
-			"/", nil, false,
-		)
-		t.Equal(result, "file://main.go:24: 24")
 		t.End()
 	})
 }

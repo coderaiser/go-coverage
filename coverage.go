@@ -2,7 +2,6 @@ package coverage
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -11,13 +10,9 @@ import (
 	"strings"
 
 	"github.com/alecthomas/chroma/v2/quick"
-)
 
-type Block struct {
-	File  string
-	Start int
-	End   int
-}
+	"coderaiser/go-coverage/internal/block"
+)
 
 var highlight = quick.Highlight
 
@@ -25,8 +20,8 @@ func ColorEnabled() bool {
 	return os.Getenv("COLOR") != "0"
 }
 
-func ParseCoverage(r io.Reader) []Block {
-	var blocks []Block
+func ParseCoverage(r io.Reader) []block.Block {
+	var blocks []block.Block
 
 	scanner := bufio.NewScanner(r)
 
@@ -58,7 +53,7 @@ func ParseCoverage(r io.Reader) []Block {
 			strings.Split(ranges[1], ".")[0],
 		)
 
-		blocks = append(blocks, Block{
+		blocks = append(blocks, block.Block{
 			File:  file,
 			Start: start,
 			End:   end,
@@ -184,42 +179,7 @@ func HighlightLines(lines []string) []string {
 	return highlighted
 }
 
-func FormatBlock(b Block, dir string, lines []string, color bool) string {
-	var absolute = ResolveFile(b.File, dir)
-	var header string
-
-	if b.Start == b.End {
-		header = fmt.Sprintf("file://%s:%d: %d", absolute, b.Start, b.Start)
-	} else {
-		header = fmt.Sprintf("file://%s:%d: %d-%d", absolute, b.Start, b.Start, b.End)
-	}
-
-	if len(lines) == 0 {
-		return header
-	}
-
-	red := "\033[31m"
-	reset := "\033[0m"
-	dim := "\033[2m"
-
-	if !color {
-		red = ""
-		reset = ""
-		dim = ""
-	}
-
-	var sb strings.Builder
-	sb.WriteString(red + header + reset + "\n\n")
-
-	for i, line := range lines {
-		lineNum := b.Start + i
-		fmt.Fprintf(&sb, "%s%4d%s | %s\n", dim, lineNum, reset, line)
-	}
-
-	return strings.TrimRight(sb.String(), "\n") + "\n"
-}
-
-func MergeBlocks(blocks []Block) []Block {
+func MergeBlocks(blocks []block.Block) []block.Block {
 	if len(blocks) == 0 {
 		return nil
 	}
@@ -231,7 +191,7 @@ func MergeBlocks(blocks []Block) []Block {
 		return blocks[i].File < blocks[j].File
 	})
 
-	merged := []Block{blocks[0]}
+	merged := []block.Block{blocks[0]}
 
 	for _, current := range blocks[1:] {
 		last := &merged[len(merged)-1]

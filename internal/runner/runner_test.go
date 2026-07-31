@@ -1,4 +1,4 @@
-package coverage
+package runner
 
 import (
 	"io"
@@ -62,6 +62,41 @@ func TestRunHelp(t *testing.T) {
 	if sb.Len() == 0 {
 		t.Fatal("expected help output")
 	}
+}
+
+func TestRunFormat(t *testing.T) {
+	Test(t, "run: -f lines", func(t *T) {
+		old := runGoTest
+		defer func() { runGoTest = old }()
+		runGoTest = mockGoTest("mode: set\ngithub.com/app/main.go:10.1,12.2 2 0\n")
+
+		var sb strings.Builder
+		Run([]string{"-f", "lines"}, &sb)
+		t.Match(sb.String(), "file://")
+		t.End()
+	})
+
+	Test(t, "run: -f json-lines", func(t *T) {
+		old := runGoTest
+		defer func() { runGoTest = old }()
+		runGoTest = mockGoTest("mode: set\ngithub.com/app/main.go:10.1,12.2 2 0\n")
+
+		var sb strings.Builder
+		Run([]string{"-f", "json-lines"}, &sb)
+		t.Match(sb.String(), `"file"`)
+		t.End()
+	})
+
+	Test(t, "run: unknown format returns error", func(t *T) {
+		old := runGoTest
+		defer func() { runGoTest = old }()
+		runGoTest = mockGoTest("mode: set\ngithub.com/app/main.go:10.1,12.2 2 0\n")
+
+		var sb strings.Builder
+		err := Run([]string{"-f", "nope"}, &sb)
+		t.Error(err)
+		t.End()
+	})
 }
 
 func TestIsExcluded(t *testing.T) {

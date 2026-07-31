@@ -1,4 +1,4 @@
-package coverage
+package runner
 
 import (
 	"errors"
@@ -11,6 +11,10 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/bmatcuk/doublestar/v4"
+
+	coverage "coderaiser/go-coverage"
+	"coderaiser/go-coverage/internal/block"
+	"coderaiser/go-coverage/internal/formatters"
 )
 
 var ErrUncovered = errors.New("uncovered blocks found")
@@ -47,6 +51,10 @@ var runGoTest = func() (io.ReadCloser, error) {
 	return &tempFile{f}, nil
 }
 
+type tempFile struct {
+	*os.File
+}
+
 func (t *tempFile) Close() error {
 	name := t.Name()
 	err := t.File.Close()
@@ -54,10 +62,6 @@ func (t *tempFile) Close() error {
 		err = removeErr
 	}
 	return err
-}
-
-type tempFile struct {
-	*os.File
 }
 
 type Config struct {
@@ -75,7 +79,6 @@ func loadConfig(path string) Config {
 }
 
 func isExcluded(file string, patterns []string, modName string) bool {
-	// Strip module prefix → "github.com/foo/bar/run.go" becomes "run.go"
 	file = strings.TrimPrefix(filepath.ToSlash(file), modName+"/")
 
 	for _, p := range patterns {
@@ -85,8 +88,6 @@ func isExcluded(file string, patterns []string, modName string) bool {
 			return true
 		}
 
-		// If pattern doesn't already end in /**, also try matching files
-		// inside that directory: "**/coverage" should exclude "cmd/coverage/main.go"
 		if !strings.HasSuffix(p, "/**") {
 			if ok, _ := doublestar.Match(p+"/**", file); ok {
 				return true
@@ -98,16 +99,19 @@ func isExcluded(file string, patterns []string, modName string) bool {
 }
 
 func Run(args []string, stdout io.Writer) error {
-	codeFrame := false
-	for _, a := range args {
+	format := "lines"
+
+	for i, a := range args {
 		switch a {
-		case "--code-frame":
-			codeFrame = true
+		case "-f", "--format":
+			if i+1 < len(args) {
+				format = args[i+1]
+			}
 		case "-v", "--version":
-			_, _ = fmt.Fprintln(stdout, VersionLine())
+			_, _ = fmt.Fprintln(stdout, coverage.VersionLine())
 			return nil
 		case "-h", "--help":
-			_, _ = fmt.Fprint(stdout, Help())
+			_, _ = fmt.Fprint(stdout, coverage.Help())
 			return nil
 		}
 	}
@@ -120,14 +124,14 @@ func Run(args []string, stdout io.Writer) error {
 	cfg := loadConfig("coverage.toml")
 
 	dir, _ := os.Getwd()
-	_, modName := FindModule(dir)
-	blocks := ParseCoverage(r)
+	_, modName := coverage.FindModule(dir)
+	blocks := coverage.ParseCoverage(r)
 
 	if err := r.Close(); err != nil {
 		return err
 	}
 
-	color := ColorEnabled()
+	color := coverage.ColorEnabled()
 
 	reported := 0
 	for _, b := range blocks {
@@ -135,20 +139,31 @@ func Run(args []string, stdout io.Writer) error {
 			continue
 		}
 
-		b.File = RelativeFile(b.File, modName)
+		b.File = coverage.RelativeFile(b.File, modName)
+		resolved := coverage.ResolveFile(b.File, dir)
 
 		var lines []string
-
-		if codeFrame {
-			resolved := ResolveFile(b.File, dir)
-			lines, _ = ReadLines(resolved, b.Start, b.End)
-
+		if format == "code-frame" {
+			lines, _ = coverage.ReadLines(resolved, b.Start, b.End)
 			if color && len(lines) > 0 {
-				lines = HighlightLines(lines)
+				lines = coverage.HighlightLines(lines)
 			}
 		}
 
-		if _, err := fmt.Fprintln(stdout, FormatBlock(b, dir, lines, color)); err != nil {
+		blk := block.Block{
+			File:  resolved,
+			Start: b.Start,
+			End:   b.End,
+			Lines: lines,
+			Color: color,
+		}
+
+		out, err := formatters.Format(format, blk)
+		if err != nil {
+			return err
+		}
+
+		if _, err := fmt.Fprintln(stdout, out); err != nil {
 			return err
 		}
 		reported++
