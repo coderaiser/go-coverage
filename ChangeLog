@@ -1,3 +1,12 @@
+2026.08.01, v1.2.0
+
+fix:
+- 9297ca0 required version v22
+
+feature:
+- 4406f4b formatters: line: add file:// only in webstorm terminal
+- ad04493 -f/--format
+
 2026.07.31, v1.1.5
 
 feature:
