@@ -2,6 +2,8 @@ version: 2
 builds:
   - main: ./cmd/coverage
     binary: coverage
+checksum:
+  name_template: "coverage_{{ .Version }}_checksums.txt"
 archives:
   - format_overrides:
       - formats:
