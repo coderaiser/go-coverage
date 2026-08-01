@@ -1,7 +1,6 @@
 package formatters_test
 
 import (
-	"os"
 	"testing"
 
 	"coderaiser/go-coverage/internal/block"
@@ -43,5 +42,4 @@ func TestLines(t *testing.T) {
 		t.Equal(result, "file://main.go:10: 10-12")
 		t.End()
 	})
-}
 }
