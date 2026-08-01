@@ -3,4 +3,6 @@ builds:
   - main: ./cmd/coverage
     binary: coverage
 archives:
-  - format: binary
+  - format_overrides:
+      - formats:
+          - binary

@@ -7,6 +7,8 @@ linters:
     - gocritic
     - misspell
   exclusions:
+    paths:
+      - node_modules
     rules:
       - path: _test\.go
         linters:

@@ -1,0 +1,11 @@
+{
+    "rules": {
+        "goreleaser": "off"
+    },
+    "match": {
+        ".goreleaser.yaml": {
+            "goreleaser": "on"
+        }
+    },
+    "plugins": ["goreleaser"]
+}

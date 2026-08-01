@@ -5,11 +5,11 @@
   "description": "CLI tool that reads a Go `coverage.out` profile and prints coverage blocks. Optionally shows a code frame (source lines) around each coverage block.",
   "main": "index.js",
   "scripts": {
-    "test": "task test",
-    "coverage": "task coverage",
-    "build": "task build",
-    "lint": "task lint",
-    "fix:lint": "task fix:lint"
+    "test": "madrun test",
+    "coverage": "madrun coverage",
+    "build": "madrun build",
+    "lint": "madrun lint",
+    "fix:lint": "madrun fix:lint"
   },
   "repository": {
     "type": "git",
@@ -18,9 +18,17 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/coderaiser/go-coverage/issues"
   },
-  "homepage": "https://github.com/coderaiser/go-coverage#readme"
+  "homepage": "https://github.com/coderaiser/go-coverage#readme",
+  "devDependencies": {
+    "@putout/plugin-goreleaser": "^1.0.4",
+    "eslint": "^10.8.0",
+    "eslint-plugin-putout": "^31.4.1",
+    "jiti": "^2.7.0",
+    "madrun": "^13.0.4",
+    "putout": "^42.11.0"
+  }
 }
