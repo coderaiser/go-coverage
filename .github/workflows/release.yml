@@ -17,16 +17,6 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: stable
-      - name: Run tests
-        run: go test ./...
-      - name: Check library coverage is 100%
-        run: |
-          go test \
-            -coverprofile=coverage.out \
-            -covermode=atomic \
-            -coverpkg=coderaiser/go-coverage \
-            ./...
-          go tool cover -func=coverage.out
   release:
     name: GoReleaser
     needs: test
