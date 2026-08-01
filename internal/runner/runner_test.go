@@ -66,7 +66,7 @@ func TestRunHelp(t *testing.T) {
 
 func TestRunFormat(t *testing.T) {
 	Test(t, "run: -f lines", func(t *T) {
-        t.Setenv("TERMINAL_EMULATOR", "JetBrains-JediTerm")
+		t.Setenv("TERMINAL_EMULATOR", "JetBrains-JediTerm")
 		old := runGoTest
 		defer func() { runGoTest = old }()
 		runGoTest = mockGoTest("mode: set\ngithub.com/app/main.go:10.1,12.2 2 0\n")
