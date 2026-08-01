@@ -17,6 +17,7 @@ func TestFormat(t *testing.T) {
 	})
 
 	Test(t, "formatter: lines dispatches correctly", func(t *T) {
+		t.Setenv("TERMINAL_EMULATOR", "JetBrains-JediTerm")
 		result, _ := formatters.Format("lines", block.Block{File: "main.go", Start: 10, End: 12})
 		t.Equal(result, "file://main.go:10: 10-12")
 		t.End()

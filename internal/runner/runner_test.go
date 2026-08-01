@@ -72,7 +72,8 @@ func TestRunFormat(t *testing.T) {
 
 		var sb strings.Builder
 		Run([]string{"-f", "lines"}, &sb)
-		t.Match(sb.String(), "file://")
+		result := sb.String()
+		t.Match(result, "file://")
 		t.End()
 	})
 
@@ -83,7 +84,8 @@ func TestRunFormat(t *testing.T) {
 
 		var sb strings.Builder
 		Run([]string{"-f", "json-lines"}, &sb)
-		t.Match(sb.String(), `"file"`)
+		result := sb.String()
+		t.Match(result, `"file"`)
 		t.End()
 	})
 
