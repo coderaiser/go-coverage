@@ -1,2 +1,2 @@
 [exclude]
-files = ["**/runner", "**/lint", "**/coverage"]
+files = ["**/runner", "**/lint", "**/coverage", "**/node_modules"]
