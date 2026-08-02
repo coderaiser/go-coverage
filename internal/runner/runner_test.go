@@ -122,37 +122,37 @@ func TestIsExcluded(t *testing.T) {
 		t.End()
 	})
 
-    Test(t, "run: adjacent uncovered blocks are merged into one range: count", func(t *T) {
-        old := runGoTest
-        defer func() { runGoTest = old }()
+	Test(t, "run: adjacent uncovered blocks are merged into one range: count", func(t *T) {
+		old := runGoTest
+		defer func() { runGoTest = old }()
 
-        runGoTest = mockGoTest("mode: set\n" +
-            "github.com/app/main.go:101.1,103.1 1 0\n" +
-            "github.com/app/main.go:104.1,106.1 1 0\n" +
-            "github.com/app/main.go:107.1,109.1 1 0\n")
+		runGoTest = mockGoTest("mode: set\n" +
+			"github.com/app/main.go:101.1,103.1 1 0\n" +
+			"github.com/app/main.go:104.1,106.1 1 0\n" +
+			"github.com/app/main.go:107.1,109.1 1 0\n")
 
-        var sb strings.Builder
-        Run([]string{"-f", "lines"}, &sb)
-        result := sb.String()
+		var sb strings.Builder
+		Run([]string{"-f", "lines"}, &sb)
+		result := sb.String()
 
-        t.Equal(strings.Count(result, "main.go"), 1)
-        t.End()
-    })
+		t.Equal(strings.Count(result, "main.go"), 1)
+		t.End()
+	})
 
-    Test(t, "run: adjacent uncovered blocks are merged into one range", func(t *T) {
-        old := runGoTest
-        defer func() { runGoTest = old }()
+	Test(t, "run: adjacent uncovered blocks are merged into one range", func(t *T) {
+		old := runGoTest
+		defer func() { runGoTest = old }()
 
-        runGoTest = mockGoTest("mode: set\n" +
-            "github.com/app/main.go:101.1,103.1 1 0\n" +
-            "github.com/app/main.go:104.1,106.1 1 0\n" +
-            "github.com/app/main.go:107.1,109.1 1 0\n")
+		runGoTest = mockGoTest("mode: set\n" +
+			"github.com/app/main.go:101.1,103.1 1 0\n" +
+			"github.com/app/main.go:104.1,106.1 1 0\n" +
+			"github.com/app/main.go:107.1,109.1 1 0\n")
 
-        var sb strings.Builder
-        Run([]string{"-f", "lines"}, &sb)
-        result := sb.String()
+		var sb strings.Builder
+		Run([]string{"-f", "lines"}, &sb)
+		result := sb.String()
 
-        t.Match(result, "101-109")
-        t.End()
-    })
+		t.Match(result, "101-109")
+		t.End()
+	})
 }

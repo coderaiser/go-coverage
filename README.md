@@ -7,7 +7,6 @@
 [CoverageURL]: https://coveralls.io/github/coderaiser/go-tape?branch=master
 [CoverageIMGURL]: https://coveralls.io/repos/coderaiser/go-tape/badge.svg?branch=master&service=github
 
-
 CLI tool that runs `go test` and prints uncovered blocks.
 
 ```
