@@ -196,3 +196,91 @@ func TestMergeBlocks(t *testing.T) {
 		t.End()
 	})
 }
+
+func TestParseProfile(t *testing.T) {
+	tape.Test(t, "coverage: ParseProfile returns all blocks including covered", func(t *tape.T) {
+		input := "mode: set\ngithub.com/app/main.go:5.1,8.2 3 1\ngithub.com/app/main.go:10.1,12.2 2 0\n"
+		blocks := coverage.ParseProfile(strings.NewReader(input))
+		expected := []block.Block{
+			{File: "github.com/app/main.go", Start: 5, End: 8, Count: 1},
+			{File: "github.com/app/main.go", Start: 10, End: 12, Count: 0},
+		}
+		t.DeepEqual(blocks, expected)
+		t.End()
+	})
+
+	tape.Test(t, "coverage: ParseProfile returns nil on empty input", func(t *tape.T) {
+		blocks := coverage.ParseProfile(strings.NewReader("mode: set\n"))
+		t.DeepEqual(blocks, []block.Block(nil))
+		t.End()
+	})
+}
+
+func TestUncoveredBlocks(t *testing.T) {
+	tape.Test(t, "coverage: UncoveredBlocks returns only zero-count blocks", func(t *tape.T) {
+		result := coverage.UncoveredBlocks([]block.Block{
+			{File: "a.go", Start: 1, End: 2, Count: 1},
+			{File: "a.go", Start: 3, End: 4, Count: 0},
+		})
+		expected := []block.Block{
+			{File: "a.go", Start: 3, End: 4, Count: 0},
+		}
+		t.DeepEqual(result, expected)
+		t.End()
+	})
+
+	tape.Test(t, "coverage: UncoveredBlocks returns nil when all covered", func(t *tape.T) {
+		result := coverage.UncoveredBlocks([]block.Block{
+			{File: "a.go", Start: 1, End: 2, Count: 1},
+		})
+		t.DeepEqual(result, []block.Block(nil))
+		t.End()
+	})
+}
+
+func TestExcludeFiles(t *testing.T) {
+	tape.Test(t, "coverage: ExcludeFiles returns all blocks when no patterns", func(t *tape.T) {
+		blocks := []block.Block{
+			{File: "main.go", Start: 1, End: 1},
+		}
+		result := coverage.ExcludeFiles(blocks, nil, "mymod")
+		t.DeepEqual(result, blocks)
+		t.End()
+	})
+
+	tape.Test(t, "coverage: ExcludeFiles removes matching file", func(t *tape.T) {
+		blocks := []block.Block{
+			{File: "mymod/internal/gen/gen.go", Start: 1, End: 1},
+			{File: "mymod/main.go", Start: 1, End: 1},
+		}
+		result := coverage.ExcludeFiles(blocks, []string{"**/gen"}, "mymod")
+		expected := []block.Block{
+			{File: "mymod/main.go", Start: 1, End: 1},
+		}
+		t.DeepEqual(result, expected)
+		t.End()
+	})
+
+	tape.Test(t, "coverage: ExcludeFiles keeps non-matching files", func(t *tape.T) {
+		blocks := []block.Block{
+			{File: "mymod/main.go", Start: 1, End: 1},
+			{File: "mymod/util.go", Start: 2, End: 2},
+		}
+		result := coverage.ExcludeFiles(blocks, []string{"**/gen"}, "mymod")
+		t.DeepEqual(result, blocks)
+		t.End()
+	})
+
+	tape.Test(t, "coverage: ExcludeFiles matches /** suffix pattern", func(t *tape.T) {
+		blocks := []block.Block{
+			{File: "mymod/vendor/lib/lib.go", Start: 1, End: 1},
+			{File: "mymod/main.go", Start: 1, End: 1},
+		}
+		result := coverage.ExcludeFiles(blocks, []string{"vendor/**"}, "mymod")
+		expected := []block.Block{
+			{File: "mymod/main.go", Start: 1, End: 1},
+		}
+		t.DeepEqual(result, expected)
+		t.End()
+	})
+}

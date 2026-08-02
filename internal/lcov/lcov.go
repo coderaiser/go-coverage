@@ -98,14 +98,8 @@ func write(w io.Writer, blocks []block.Block) error {
 			}
 		}
 
-		if _, err := fmt.Fprintf(w, "LH:%d\n", lh); err != nil {
-			return fmt.Errorf("lcov: write LH: %w", err)
-		}
-		if _, err := fmt.Fprintf(w, "LF:%d\n", len(lines)); err != nil {
-			return fmt.Errorf("lcov: write LF: %w", err)
-		}
-		if _, err := fmt.Fprintln(w, "end_of_record"); err != nil {
-			return fmt.Errorf("lcov: write end_of_record: %w", err)
+		if _, err := fmt.Fprintf(w, "LH:%d\nLF:%d\nend_of_record\n", lh, len(lines)); err != nil {
+			return fmt.Errorf("lcov: write footer: %w", err)
 		}
 	}
 
