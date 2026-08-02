@@ -42,7 +42,7 @@ COLOR=0 coverage
 
 ## Configuration
 
-Place a `coverage.toml` in your project root to exclude files from coverage checks and the lcov report:
+Place a `.coverage.toml` in your project root to exclude files from coverage checks and the lcov report:
 
 ```toml
 [exclude]

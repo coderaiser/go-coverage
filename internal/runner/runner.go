@@ -106,7 +106,7 @@ func Run(args []string, stdout io.Writer) error {
 		return err
 	}
 
-	cfg := loadConfig("coverage.toml")
+	cfg := loadConfig(".coverage.toml")
 
 	dir, _ := os.Getwd()
 	_, modName := coverage.FindModule(dir)
