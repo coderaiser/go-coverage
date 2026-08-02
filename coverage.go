@@ -85,7 +85,6 @@ func ExcludeFiles(blocks []block.Block, patterns []string, modName string) []blo
 }
 
 // ParseCoverage parses a Go coverprofile and returns only uncovered blocks.
-// Deprecated: use ParseProfile + ExcludeFiles + UncoveredBlocks instead.
 func ParseCoverage(r io.Reader) []block.Block {
 	all := ParseProfile(r)
 	return MergeBlocks(UncoveredBlocks(all))
