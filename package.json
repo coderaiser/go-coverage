@@ -1,7 +1,7 @@
 {
   "name": "go-coverage",
   "private": true,
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "CLI tool that reads a Go `coverage.out` profile and prints coverage blocks. Optionally shows a code frame (source lines) around each coverage block.",
   "main": "index.js",
   "scripts": {
