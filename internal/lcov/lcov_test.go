@@ -1,11 +1,11 @@
 package lcov
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"io"
 	"os"
-	"bufio"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -84,7 +84,8 @@ func TestWriteReport(t *testing.T) {
 			{File: "a.go", Start: 1, End: 2, Count: 1},
 			{File: "b.go", Start: 1, End: 1, Count: 0},
 		})
-		t.Equal(strings.Count(out, "SF:"), 2)
+		result := strings.Count(out, "SF:")
+		t.Equal(result, 2)
 		t.End()
 	})
 
@@ -93,7 +94,8 @@ func TestWriteReport(t *testing.T) {
 			{File: "a.go", Start: 1, End: 2, Count: 1},
 			{File: "b.go", Start: 1, End: 1, Count: 0},
 		})
-		t.Equal(strings.Count(out, "end_of_record"), 2)
+		result := strings.Count(out, "end_of_record")
+		t.Equal(result, 2)
 		t.End()
 	})
 
@@ -120,7 +122,8 @@ func TestWriteReport(t *testing.T) {
 		path := filepath.Join(dir, "coverage.lcov")
 		_ = WriteReport(path, nil)
 		data, _ := os.ReadFile(path)
-		t.Equal(string(data), "")
+		result := string(data)
+		t.Equal(result, "")
 		t.End()
 	})
 
@@ -229,7 +232,8 @@ func TestWrite(t *testing.T) {
 	Test(t, "lcov: write succeeds with valid writer", func(t *T) {
 		var sb strings.Builder
 		write(&nopWriter{w: &sb}, oneBlock)
-		t.Match(sb.String(), "SF:main.go")
+		result := sb.String()
+		t.Match(result, "SF:main.go")
 		t.End()
 	})
 }

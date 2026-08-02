@@ -211,7 +211,8 @@ func TestParseProfile(t *testing.T) {
 
 	tape.Test(t, "coverage: ParseProfile returns nil on empty input", func(t *tape.T) {
 		blocks := coverage.ParseProfile(strings.NewReader("mode: set\n"))
-		t.DeepEqual(blocks, []block.Block(nil))
+		expected := []block.Block(nil)
+		t.DeepEqual(blocks, expected)
 		t.End()
 	})
 }
@@ -233,7 +234,8 @@ func TestUncoveredBlocks(t *testing.T) {
 		result := coverage.UncoveredBlocks([]block.Block{
 			{File: "a.go", Start: 1, End: 2, Count: 1},
 		})
-		t.DeepEqual(result, []block.Block(nil))
+		expected := []block.Block(nil)
+		t.DeepEqual(result, expected)
 		t.End()
 	})
 }

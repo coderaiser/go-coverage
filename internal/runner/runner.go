@@ -141,7 +141,7 @@ func Run(args []string, stdout io.Writer) error {
 	color := coverage.ColorEnabled()
 	reported := 0
 
-	for _, b := range coverage.UncoveredBlocks(allBlocks) {
+    for _, b := range coverage.MergeBlocks(coverage.UncoveredBlocks(allBlocks)) {
 		b.File = coverage.RelativeFile(b.File, modName)
 		resolved := coverage.ResolveFile(b.File, dir)
 
