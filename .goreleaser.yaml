@@ -5,6 +5,5 @@ builds:
 checksum:
   name_template: coverage_{{ .Version }}_checksums.txt
 archives:
-  - format_overrides:
-      - formats:
-          - binary
+  - formats:
+      - binary
