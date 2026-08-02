@@ -22,8 +22,7 @@ jobs:
           palabra i task coverage golangci-lint
       - name: Lint
         run: |
-          putout . --fix
-          golangci-lint run --fix
+          redrun fix:lint
       - name: Typos
         uses: coderaiser/typos.ai@v1.1.8
         with:
