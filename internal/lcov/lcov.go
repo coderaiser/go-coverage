@@ -1,7 +1,6 @@
 package lcov
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"os"
@@ -10,11 +9,11 @@ import (
 	"coderaiser/go-coverage/internal/block"
 )
 
+var writeBlocks = writeToWriter
+
 // WriteReport writes blocks in lcov format to the file at path, overwriting
 // any existing file. Only blocks present in the input are reported — callers
 // are responsible for filtering excluded files before calling WriteReport.
-var writeBlocks = writeToWriter
-
 func WriteReport(path string, blocks []block.Block) error {
 	f, err := os.Create(path)
 	if err != nil {
@@ -30,17 +29,7 @@ func WriteReport(path string, blocks []block.Block) error {
 }
 
 func writeToWriter(dst io.Writer, blocks []block.Block) error {
-	w := bufio.NewWriter(dst)
-
-	if err := write(w, blocks); err != nil {
-		return err
-	}
-
-	if err := w.Flush(); err != nil {
-		return fmt.Errorf("lcov: flush: %w", err)
-	}
-
-	return nil
+	return write(dst, blocks)
 }
 
 // write emits lcov-format output for the given blocks grouped by file.

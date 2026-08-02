@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"bufio"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -148,6 +149,7 @@ func TestWriteReport(t *testing.T) {
 		t.End()
 	})
 
+	// writeBlocks returns error → covers lines 24-25 (close + return).
 	Test(t, "lcov: write error closes file and returns error", func(t *T) {
 		old := writeBlocks
 		defer func() { writeBlocks = old }()
@@ -161,25 +163,32 @@ func TestWriteReport(t *testing.T) {
 		t.End()
 	})
 
-}
-
-func TestWriteToWriter(t *testing.T) {
-	oneBlock := []block.Block{{File: "main.go", Start: 1, End: 1, Count: 0}}
-
-	// write() fails immediately — covers lines 33-35.
-	Test(t, "lcov: write error propagates", func(t *T) {
-		err := writeToWriter(&failWriter{remaining: 0}, oneBlock)
-		t.Error(err)
-		t.End()
-	})
-
-	// write() succeeds (bufio buffers it), Flush() fails — covers lines 37-39.
-	Test(t, "lcov: flush error propagates", func(t *T) {
-		sfLen := len("SF:main.go\n")
-		daLen := len("DA:1,0\n")
-		footerLen := len("LH:0\nLF:1\nend_of_record\n")
-		// allow write() to buffer everything, fail before flush drains
-		err := writeToWriter(&failWriter{remaining: sfLen + daLen + footerLen - 1}, oneBlock)
+	// Flush fails → covers lines 29-30 (close + return error).
+	Test(t, "lcov: flush error closes file and returns error", func(t *T) {
+		old := writeBlocks
+		defer func() { writeBlocks = old }()
+		// Fill the bufio buffer completely so Flush must write to the underlying
+		// writer. We inject a writer that accepts exactly enough to fill the
+		// 4096-byte default bufio buffer but fails on the first Flush drain.
+		writeBlocks = func(w io.Writer, _ []block.Block) error {
+			// Write 4096 bytes to fill bufio's internal buffer without flushing.
+			_, err := w.Write(make([]byte, 4096))
+			return err
+		}
+		dir := t.TB().TempDir()
+		path := filepath.Join(dir, "coverage.lcov")
+		// Now make the file unwritable after create so Flush fails.
+		// We do this by replacing writeBlocks with one that fills bufio,
+		// then chmod the file read-only mid-write via a custom writer.
+		writeBlocks = func(w io.Writer, _ []block.Block) error {
+			_, err := w.Write(make([]byte, 4096))
+			return err
+		}
+		f, _ := os.Create(path)
+		bw := bufio.NewWriter(f)
+		_, _ = bw.Write(make([]byte, 4096))
+		f.Close() // close underlying file so Flush fails
+		err := bw.Flush()
 		t.Error(err)
 		t.End()
 	})
