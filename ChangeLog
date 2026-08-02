@@ -1,3 +1,13 @@
+2026.08.02, v1.3.0
+
+fix:
+- d478d7d Taskfile: test
+
+feature:
+- e980784 coverage: merge sequential uncovered blocks
+- f864f53 coverage: add dot prefix
+- bdff154 -r, --report: add support
+
 2026.08.01, v1.2.3
 
 fix:
