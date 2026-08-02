@@ -17,7 +17,8 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - name: Install
         run: |
-          bun install putout redrun palabra -g
+          bun install redrun palabra -g
+          bun i --no-save
           palabra i task coverage golangci-lint
       - name: Lint
         run: |
