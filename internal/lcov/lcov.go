@@ -19,18 +19,26 @@ func WriteReport(path string, blocks []block.Block) error {
 		return fmt.Errorf("lcov: create %s: %w", path, err)
 	}
 
-	w := bufio.NewWriter(f)
-	if err := write(w, blocks); err != nil {
+	if err := writeToWriter(f, blocks); err != nil {
 		_ = f.Close()
 		return err
 	}
 
-	if err := w.Flush(); err != nil {
-		_ = f.Close()
-		return fmt.Errorf("lcov: flush %s: %w", path, err)
+	return f.Close()
+}
+
+func writeToWriter(dst io.Writer, blocks []block.Block) error {
+	w := bufio.NewWriter(dst)
+
+	if err := write(w, blocks); err != nil {
+		return err
 	}
 
-	return f.Close()
+	if err := w.Flush(); err != nil {
+		return fmt.Errorf("lcov: flush: %w", err)
+	}
+
+	return nil
 }
 
 // write emits lcov-format output for the given blocks grouped by file.
