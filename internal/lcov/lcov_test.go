@@ -1,6 +1,9 @@
 package lcov
 
 import (
+	"errors"
+	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -22,6 +25,23 @@ func writeReport(t *testing.T, blocks []block.Block) string {
 		t.Fatalf("ReadFile: %v", err)
 	}
 	return string(data)
+}
+
+// failWriter returns an error after n successful bytes.
+type failWriter struct {
+	remaining int
+}
+
+func (f *failWriter) Write(p []byte) (int, error) {
+	if f.remaining <= 0 {
+		return 0, errors.New("write failed")
+	}
+	n := len(p)
+	if n > f.remaining {
+		n = f.remaining
+	}
+	f.remaining -= n
+	return n, nil
 }
 
 func TestWriteReport(t *testing.T) {
@@ -117,4 +137,60 @@ func TestWriteReport(t *testing.T) {
 		t.Match(out, "DA:5,1")
 		t.End()
 	})
+
+	Test(t, "lcov: create fails on bad path returns error", func(t *T) {
+		err := WriteReport("/nonexistent/dir/coverage.lcov", nil)
+		t.Error(err)
+		t.End()
+	})
+}
+
+func TestWrite(t *testing.T) {
+	oneBlock := []block.Block{
+		{File: "main.go", Start: 1, End: 1, Count: 0},
+	}
+
+	Test(t, "lcov: write SF error returns error", func(t *T) {
+		err := write(&failWriter{remaining: 0}, oneBlock)
+		t.Error(err)
+		t.End()
+	})
+
+	Test(t, "lcov: write DA error returns error", func(t *T) {
+		// enough bytes for "SF:main.go\n" (11) but fail on DA
+		err := write(&failWriter{remaining: 11}, oneBlock)
+		t.Error(err)
+		t.End()
+	})
+
+	Test(t, "lcov: write footer error returns error", func(t *T) {
+		// enough for SF + DA but not footer
+		sfLen := len(fmt.Sprintf("SF:%s\n", "main.go"))
+		daLen := len(fmt.Sprintf("DA:%d,%d\n", 1, 0))
+		err := write(&failWriter{remaining: sfLen + daLen}, oneBlock)
+		t.Error(err)
+		t.End()
+	})
+
+	Test(t, "lcov: write succeeds with valid writer: no error", func(t *T) {
+		var sb strings.Builder
+		err := write(&nopWriter{w: &sb}, oneBlock)
+		t.NotOk(err)
+		t.End()
+	})
+
+	Test(t, "lcov: write succeeds with valid writer", func(t *T) {
+		var sb strings.Builder
+		write(&nopWriter{w: &sb}, oneBlock)
+		t.Match(sb.String(), "SF:main.go")
+		t.End()
+	})
+}
+
+type nopWriter struct {
+	w io.Writer
+}
+
+func (n *nopWriter) Write(p []byte) (int, error) {
+	return n.w.Write(p)
 }
