@@ -6,15 +6,13 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"path/filepath"
-	"strings"
 
 	"github.com/BurntSushi/toml"
-	"github.com/bmatcuk/doublestar/v4"
 
 	coverage "coderaiser/go-coverage"
 	"coderaiser/go-coverage/internal/block"
 	"coderaiser/go-coverage/internal/formatters"
+	"coderaiser/go-coverage/internal/lcov"
 )
 
 var ErrUncovered = errors.New("uncovered blocks found")
@@ -78,34 +76,21 @@ func loadConfig(path string) Config {
 	return cfg
 }
 
-func isExcluded(file string, patterns []string, modName string) bool {
-	file = strings.TrimPrefix(filepath.ToSlash(file), modName+"/")
-
-	for _, p := range patterns {
-		p = strings.TrimPrefix(filepath.ToSlash(p), "./")
-
-		if ok, _ := doublestar.Match(p, file); ok {
-			return true
-		}
-
-		if !strings.HasSuffix(p, "/**") {
-			if ok, _ := doublestar.Match(p+"/**", file); ok {
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
 func Run(args []string, stdout io.Writer) error {
 	format := "lines"
+	reportPath := ""
 
 	for i, a := range args {
 		switch a {
 		case "-f", "--format":
 			if i+1 < len(args) {
 				format = args[i+1]
+			}
+		case "-r", "--report":
+			if i+1 < len(args) && len(args[i+1]) > 0 && args[i+1][0] != '-' {
+				reportPath = args[i+1]
+			} else {
+				reportPath = "coverage.lcov"
 			}
 		case "-v", "--version":
 			_, _ = fmt.Fprintln(stdout, coverage.VersionLine())
@@ -125,20 +110,38 @@ func Run(args []string, stdout io.Writer) error {
 
 	dir, _ := os.Getwd()
 	_, modName := coverage.FindModule(dir)
-	blocks := coverage.ParseCoverage(r)
+
+	// Parse all blocks (covered + uncovered).
+	allBlocks := coverage.ParseProfile(r)
 
 	if err := r.Close(); err != nil {
 		return err
 	}
 
-	color := coverage.ColorEnabled()
+	// Apply exclusions once — both consumers see the same filtered set.
+	allBlocks = coverage.ExcludeFiles(allBlocks, cfg.Exclude.Files, modName)
 
-	reported := 0
-	for _, b := range blocks {
-		if isExcluded(b.File, cfg.Exclude.Files, modName) {
-			continue
+	// Write lcov report if requested.
+	if reportPath != "" {
+		// Resolve file paths for lcov (relative to repo root).
+		resolved := make([]block.Block, len(allBlocks))
+		for i, b := range allBlocks {
+			resolved[i] = b
+			resolved[i].File = coverage.ResolveFile(
+				coverage.RelativeFile(b.File, modName),
+				dir,
+			)
 		}
+		if err := lcov.WriteReport(reportPath, resolved); err != nil {
+			return err
+		}
+	}
 
+	// Uncovered blocks → terminal output.
+	color := coverage.ColorEnabled()
+	reported := 0
+
+	for _, b := range coverage.UncoveredBlocks(allBlocks) {
 		b.File = coverage.RelativeFile(b.File, modName)
 		resolved := coverage.ResolveFile(b.File, dir)
 

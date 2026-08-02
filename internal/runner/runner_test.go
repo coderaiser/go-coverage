@@ -5,6 +5,9 @@ import (
 	"strings"
 	"testing"
 
+	coverage "coderaiser/go-coverage"
+	"coderaiser/go-coverage/internal/block"
+
 	. "github.com/coderaiser/go-tape"
 )
 
@@ -105,15 +108,17 @@ func TestRunFormat(t *testing.T) {
 func TestIsExcluded(t *testing.T) {
 	Test(t, "isExcluded: **", func(t *T) {
 		mod := "coderaiser/go-tape"
-		result := isExcluded("coderaiser/go-tape/internal/lint/rules/require-t-end.go", []string{"run.go", "**/lint", "**/coverage"}, mod)
-		t.Ok(result)
+		blocks := []block.Block{{File: "coderaiser/go-tape/internal/lint/rules/require-t-end.go"}}
+		result := coverage.ExcludeFiles(blocks, []string{"run.go", "**/lint", "**/coverage"}, mod)
+		t.Equal(len(result), 0)
 		t.End()
 	})
 
 	Test(t, "isExcluded: root", func(t *T) {
 		mod := "coderaiser/go-tape"
-		result := isExcluded("coderaiser/go-tape/cmd/coverage/main.go", []string{"run.go", "**/lint", "**/coverage"}, mod)
-		t.Ok(result)
+		blocks := []block.Block{{File: "coderaiser/go-tape/cmd/coverage/main.go"}}
+		result := coverage.ExcludeFiles(blocks, []string{"run.go", "**/lint", "**/coverage"}, mod)
+		t.Equal(len(result), 0)
 		t.End()
 	})
 }

@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/alecthomas/chroma/v2/quick"
+	"github.com/bmatcuk/doublestar/v4"
 
 	"coderaiser/go-coverage/internal/block"
 )
@@ -20,7 +21,9 @@ func ColorEnabled() bool {
 	return os.Getenv("COLOR") != "0"
 }
 
-func ParseCoverage(r io.Reader) []block.Block {
+// ParseProfile parses a Go coverprofile and returns all blocks, both covered
+// and uncovered, with their hit counts.
+func ParseProfile(r io.Reader) []block.Block {
 	var blocks []block.Block
 
 	scanner := bufio.NewScanner(r)
@@ -34,11 +37,12 @@ func ParseCoverage(r io.Reader) []block.Block {
 
 		parts := strings.Fields(line)
 
-		if len(parts) != 3 || parts[2] != "0" {
+		if len(parts) != 3 {
 			continue
 		}
 
 		location := parts[0]
+		count, _ := strconv.Atoi(parts[2])
 
 		index := strings.LastIndex(location, ":")
 		file := location[:index]
@@ -57,10 +61,45 @@ func ParseCoverage(r io.Reader) []block.Block {
 			File:  file,
 			Start: start,
 			End:   end,
+			Count: count,
 		})
 	}
 
-	return MergeBlocks(blocks)
+	return blocks
+}
+
+// ExcludeFiles filters out blocks whose files match any of the given patterns.
+func ExcludeFiles(blocks []block.Block, patterns []string, modName string) []block.Block {
+	if len(patterns) == 0 {
+		return blocks
+	}
+
+	filtered := blocks[:0]
+	for _, b := range blocks {
+		if !isExcluded(b.File, patterns, modName) {
+			filtered = append(filtered, b)
+		}
+	}
+
+	return filtered
+}
+
+// ParseCoverage parses a Go coverprofile and returns only uncovered blocks.
+// Deprecated: use ParseProfile + ExcludeFiles + UncoveredBlocks instead.
+func ParseCoverage(r io.Reader) []block.Block {
+	all := ParseProfile(r)
+	return MergeBlocks(UncoveredBlocks(all))
+}
+
+// UncoveredBlocks returns only blocks with a zero hit count.
+func UncoveredBlocks(blocks []block.Block) []block.Block {
+	var out []block.Block
+	for _, b := range blocks {
+		if b.Count == 0 {
+			out = append(out, b)
+		}
+	}
+	return out
 }
 
 func ResolveFile(file, dir string) string {
@@ -208,4 +247,24 @@ func MergeBlocks(blocks []block.Block) []block.Block {
 	}
 
 	return merged
+}
+
+func isExcluded(file string, patterns []string, modName string) bool {
+	file = strings.TrimPrefix(filepath.ToSlash(file), modName+"/")
+
+	for _, p := range patterns {
+		p = strings.TrimPrefix(filepath.ToSlash(p), "./")
+
+		if ok, _ := doublestar.Match(p, file); ok {
+			return true
+		}
+
+		if !strings.HasSuffix(p, "/**") {
+			if ok, _ := doublestar.Match(p+"/**", file); ok {
+				return true
+			}
+		}
+	}
+
+	return false
 }

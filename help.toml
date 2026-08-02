@@ -1,5 +1,6 @@
 [flags]
-"-f"               = "path to coverage profile (default: coverage.out)"
+"-f"               = "output format: lines, code-frame, json-lines (default: lines)"
+"-r, --report"     = "write lcov report to file (default path: coverage.lcov)"
 "--code-frame"     = "print file:line ranges with source"
 "-v, --version"    = "print version and exit"
 "-h, --help"       = "print this help and exit"
