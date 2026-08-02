@@ -148,6 +148,19 @@ func TestWriteReport(t *testing.T) {
 		t.End()
 	})
 
+	Test(t, "lcov: write error closes file and returns error", func(t *T) {
+		old := writeBlocks
+		defer func() { writeBlocks = old }()
+		writeBlocks = func(_ io.Writer, _ []block.Block) error {
+			return errors.New("injected write error")
+		}
+		dir := t.TB().TempDir()
+		path := filepath.Join(dir, "coverage.lcov")
+		err := WriteReport(path, []block.Block{{File: "main.go", Start: 1, End: 1, Count: 0}})
+		t.Error(err)
+		t.End()
+	})
+
 }
 
 func TestWriteToWriter(t *testing.T) {

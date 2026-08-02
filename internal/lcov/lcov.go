@@ -13,13 +13,15 @@ import (
 // WriteReport writes blocks in lcov format to the file at path, overwriting
 // any existing file. Only blocks present in the input are reported — callers
 // are responsible for filtering excluded files before calling WriteReport.
+var writeBlocks = writeToWriter
+
 func WriteReport(path string, blocks []block.Block) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return fmt.Errorf("lcov: create %s: %w", path, err)
 	}
 
-	if err := writeToWriter(f, blocks); err != nil {
+	if err := writeBlocks(f, blocks); err != nil {
 		_ = f.Close()
 		return err
 	}
