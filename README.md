@@ -1,4 +1,12 @@
-# coverage
+# Coverage [![License][LicenseIMGURL]][LicenseURL] [![Build Status][BuildStatusIMGURL]][BuildStatusURL] [![Coverage Status][CoverageIMGURL]][CoverageURL]
+
+[BuildStatusURL]: https://github.com/coderaiser/go-coverage/actions/workflows/test.yml
+[BuildStatusIMGURL]: https://github.com/coderaiser/go-coverage/actions/workflows/test.yml/badge.svg
+[LicenseURL]: https://tldrlegal.com/license/mit-license "MIT License"
+[LicenseIMGURL]: https://img.shields.io/badge/license-MIT-317BF9.svg?style=flat
+[CoverageURL]: https://coveralls.io/github/coderaiser/go-tape?branch=master
+[CoverageIMGURL]: https://coveralls.io/repos/coderaiser/go-tape/badge.svg?branch=master&service=github
+
 
 CLI tool that runs `go test` and prints uncovered blocks.
 

@@ -38,7 +38,7 @@ jobs:
       - name: Build
         run: redrun build
       - name: Coverage
-        run: redrun coverage
+        run: redrun report
       - name: Coveralls
         continue-on-error: true
         uses: coverallsapp/github-action@v2

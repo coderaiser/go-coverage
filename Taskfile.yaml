@@ -10,7 +10,12 @@ tasks:
       Run tests with coverage scoped to the library package only.
       run.go (CLI glue) is intentionally excluded.
     cmds:
-      - coverage
+      - coverage || tape
+  report:
+    desc: |
+      Coverage
+    cmds:
+      - coverage --report
   build:
     desc: Build the binary for the current platform
     cmds:
