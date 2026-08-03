@@ -288,15 +288,16 @@ func TestExcludeFiles(t *testing.T) {
 }
 
 func TestErrUncoveredIsExported(t *testing.T) {
-    tape.Test(t, "coverage: ErrUncovered is a non-nil sentinel error", func(t *tape.T) {
-        t.Ok(coverage.ErrUncovered != nil)
-        t.End()
-    })
+	tape.Test(t, "coverage: ErrUncovered is a non-nil sentinel error", func(t *tape.T) {
+		t.Ok(coverage.ErrUncovered != nil)
+		t.End()
+	})
 }
 
 func TestErrUncoveredMessage(t *testing.T) {
-    tape.Test(t, "coverage: ErrUncovered message is descriptive", func(t *tape.T) {
-        t.Match(coverage.ErrUncovered.Error(), "uncovered")
-        t.End()
-    })
+	tape.Test(t, "coverage: ErrUncovered message is descriptive", func(t *tape.T) {
+		result := coverage.ErrUncovered.Error()
+		t.Match(result, "uncovered")
+		t.End()
+	})
 }

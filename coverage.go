@@ -19,7 +19,6 @@ import (
 var highlight = quick.Highlight
 var ErrUncovered = errors.New("uncovered blocks found")
 
-
 func ColorEnabled() bool {
 	return os.Getenv("COLOR") != "0"
 }
