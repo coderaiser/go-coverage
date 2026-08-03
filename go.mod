@@ -1,4 +1,4 @@
-module githib.com/coderaiser/go-coverage
+module github.com/coderaiser/go-coverage
 
 go 1.25.0
 
