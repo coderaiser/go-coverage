@@ -6,10 +6,10 @@ import (
 	"os"
 	"os/exec"
 
-	coverage "coderaiser/go-coverage"
-	"coderaiser/go-coverage/internal/block"
-	"coderaiser/go-coverage/internal/formatters"
-	"coderaiser/go-coverage/internal/lcov"
+	coverage "github.com/coderaiser/go-coverage"
+	"github.com/coderaiser/go-coverage/internal/block"
+	"github.com/coderaiser/go-coverage/internal/formatters"
+	"github.com/coderaiser/go-coverage/internal/lcov"
 )
 
 var runGoTest = func() (io.ReadCloser, error) {

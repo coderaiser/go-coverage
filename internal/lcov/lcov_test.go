@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"coderaiser/go-coverage/internal/block"
+	"github.com/coderaiser/go-coverage/internal/block"
 
 	. "github.com/coderaiser/go-tape"
 )

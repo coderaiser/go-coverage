@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"coderaiser/go-coverage"
-	"coderaiser/go-coverage/internal/runner"
+	"github.com/coderaiser/go-coverage"
+	"github.com/coderaiser/go-coverage/internal/runner"
 )
 
 func main() {

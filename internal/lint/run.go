@@ -9,8 +9,8 @@ import (
 	"go/token"
 	"os"
 
-	"coderaiser/go-coverage/internal/lint/rule"
-	"coderaiser/go-coverage/internal/lint/rules"
+	"github.com/coderaiser/go-coverage/internal/lint/rule"
+	"github.com/coderaiser/go-coverage/internal/lint/rules"
 )
 
 func Run(files []string) bool {

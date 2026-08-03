@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"coderaiser/go-coverage/internal/lint"
+	"github.com/coderaiser/go-coverage/internal/lint"
 )
 
 func main() {

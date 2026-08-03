@@ -3,7 +3,7 @@ package formatters
 import (
 	"fmt"
 
-	"coderaiser/go-coverage/internal/block"
+	"github.com/coderaiser/go-coverage/internal/block"
 )
 
 type Formatter interface {

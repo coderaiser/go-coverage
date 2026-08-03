@@ -3,7 +3,7 @@ package coverage_test
 import (
 	"testing"
 
-	coverage "coderaiser/go-coverage"
+	coverage "github.com/coderaiser/go-coverage"
 
 	tape "github.com/coderaiser/go-tape"
 

@@ -4,7 +4,7 @@ import (
 	"go/ast"
 	"go/token"
 
-	"coderaiser/go-coverage/internal/lint/rule"
+	"github.com/coderaiser/go-coverage/internal/lint/rule"
 )
 
 // NoEqualSlice detects t.Equal() calls where the argument is a slice literal.

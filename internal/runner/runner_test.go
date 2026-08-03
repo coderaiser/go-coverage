@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	coverage "coderaiser/go-coverage"
-	"coderaiser/go-coverage/internal/block"
+	coverage "github.com/coderaiser/go-coverage"
+	"github.com/coderaiser/go-coverage/internal/block"
 
 	. "github.com/coderaiser/go-tape"
 )

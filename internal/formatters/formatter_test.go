@@ -3,8 +3,8 @@ package formatters_test
 import (
 	"testing"
 
-	"coderaiser/go-coverage/internal/block"
-	"coderaiser/go-coverage/internal/formatters"
+	"github.com/coderaiser/go-coverage/internal/block"
+	"github.com/coderaiser/go-coverage/internal/formatters"
 
 	. "github.com/coderaiser/go-tape"
 )

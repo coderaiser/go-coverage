@@ -4,7 +4,7 @@ import (
 	"go/ast"
 	"go/token"
 
-	"coderaiser/go-coverage/internal/lint/rule"
+	"github.com/coderaiser/go-coverage/internal/lint/rule"
 )
 
 // RequireTEnd detects tape.Test(...) calls whose inner closure is missing t.End().

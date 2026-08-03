@@ -6,7 +6,7 @@ import (
 	"os"
 	"sort"
 
-	"coderaiser/go-coverage/internal/block"
+	"github.com/coderaiser/go-coverage/internal/block"
 )
 
 var writeBlocks = writeToWriter

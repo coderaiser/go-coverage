@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"coderaiser/go-coverage/internal/block"
+	"github.com/coderaiser/go-coverage/internal/block"
 )
 
 type Lines struct{}

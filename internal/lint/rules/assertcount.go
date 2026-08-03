@@ -5,7 +5,7 @@ import (
 	"go/token"
 	"strconv"
 
-	"coderaiser/go-coverage/internal/lint/rule"
+	"github.com/coderaiser/go-coverage/internal/lint/rule"
 )
 
 type AssertCount struct{}

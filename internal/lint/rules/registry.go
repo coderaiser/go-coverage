@@ -1,6 +1,6 @@
 package rules
 
-import "coderaiser/go-coverage/internal/lint/rule"
+import "github.com/coderaiser/go-coverage/internal/lint/rule"
 
 var All = []rule.Rule{
 	&AssertCount{},

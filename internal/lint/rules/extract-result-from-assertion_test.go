@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"coderaiser/go-coverage/internal/lint/rules"
+	"github.com/coderaiser/go-coverage/internal/lint/rules"
 )
 
 // checkRule parses src, runs Check, and returns the number of violations.

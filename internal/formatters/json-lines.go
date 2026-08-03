@@ -3,7 +3,7 @@ package formatters
 import (
 	"encoding/json"
 
-	"coderaiser/go-coverage/internal/block"
+	"github.com/coderaiser/go-coverage/internal/block"
 )
 
 type JSONLines struct{}

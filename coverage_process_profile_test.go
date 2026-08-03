@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	coverage "coderaiser/go-coverage"
+	coverage "github.com/coderaiser/go-coverage"
 
 	. "github.com/coderaiser/go-tape"
 	"github.com/lithammer/dedent"

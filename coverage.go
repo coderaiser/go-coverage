@@ -15,9 +15,9 @@ import (
 	"github.com/alecthomas/chroma/v2/quick"
 	"github.com/bmatcuk/doublestar/v4"
 
-	"coderaiser/go-coverage/internal/block"
-	"coderaiser/go-coverage/internal/formatters"
-	"coderaiser/go-coverage/internal/lcov"
+	"github.com/coderaiser/go-coverage/internal/block"
+	"github.com/coderaiser/go-coverage/internal/formatters"
+	"github.com/coderaiser/go-coverage/internal/lcov"
 )
 
 var highlight = quick.Highlight
