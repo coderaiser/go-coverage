@@ -10,8 +10,14 @@ github.com/bmatcuk/doublestar/v4 v4.10.0 h1:zU9WiOla1YA122oLM6i4EXvGW62DvKZVxIe6
 github.com/bmatcuk/doublestar/v4 v4.10.0/go.mod h1:xBQ8jztBU6kakFMg+8WGxn0c6z1fTSPVIjEY1Wr7jzc=
 github.com/coderaiser/go-tape v1.0.1-0.20260727070906-c4145c2f8045 h1:R8h3ku8cBLm2UlJ/6pm4oYXS8cBI0KqC2lcSL8G/x20=
 github.com/coderaiser/go-tape v1.0.1-0.20260727070906-c4145c2f8045/go.mod h1:cJFM+jSBdlIl43fv7W3aO5W4VbX68j3FYBREQEq9Ocs=
+github.com/coderaiser/go-tape v1.0.13 h1:Unt7dmd211TXI1mgUWeF8WxXnGa3Ubh5ciQMtsjI4w0=
+github.com/coderaiser/go-tape v1.0.13/go.mod h1:SJuCDmsAFzOQ+XTHCcUcQidjLmPfXtwypNXpa9rSgJc=
+github.com/coderaiser/go-tape v1.1.0 h1:XuBpZkJMaq5HBu+DIBhSB3Ap+6X2Aqcoz2wS+IVBJCU=
+github.com/coderaiser/go-tape v1.1.0/go.mod h1:SJuCDmsAFzOQ+XTHCcUcQidjLmPfXtwypNXpa9rSgJc=
 github.com/dlclark/regexp2/v2 v2.2.1 h1:mf4KkFUj0gJuarK8P+LgiS+Lit7m9N1yAwEfPbee7R0=
 github.com/dlclark/regexp2/v2 v2.2.1/go.mod h1:avUrQvPaLz2DrFNHJF0taWAFFX2C1GMSSoeiqFjcBmU=
+github.com/dlclark/regexp2/v2 v2.5.2 h1:HAsucWRhsqcDzl6Ua9aR8JwYOTzrZyPrF0/FNxJVAI0=
+github.com/dlclark/regexp2/v2 v2.5.2/go.mod h1:avUrQvPaLz2DrFNHJF0taWAFFX2C1GMSSoeiqFjcBmU=
 github.com/hexops/gotextdiff v1.0.3 h1:gitA9+qJrrTCsiCl7+kh75nPqQt1cx4ZkudSTLoUqJM=
 github.com/hexops/gotextdiff v1.0.3/go.mod h1:pSWU5MAI3yDq+fZBTazCSJysOMbxWL1BSow5/V2vxeg=
 github.com/lithammer/dedent v1.1.0 h1:VNzHMVCBNG1j0fh3OrsFRkVUwStdDArbgBWoPAffktY=

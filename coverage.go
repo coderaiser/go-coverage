@@ -3,6 +3,7 @@ package coverage
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -10,10 +11,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/BurntSushi/toml"
 	"github.com/alecthomas/chroma/v2/quick"
 	"github.com/bmatcuk/doublestar/v4"
 
 	"coderaiser/go-coverage/internal/block"
+	"coderaiser/go-coverage/internal/formatters"
+	"coderaiser/go-coverage/internal/lcov"
 )
 
 var highlight = quick.Highlight
@@ -268,4 +272,55 @@ func isExcluded(file string, patterns []string, modName string) bool {
 	}
 
 	return false
+}
+
+// ProcessProfile reads a Go coverprofile from r, applies exclusions from
+// .coverage.toml in the current directory, formats uncovered blocks to w,
+// and optionally writes an lcov report to reportPath (pass "" to skip).
+// Returns ErrUncovered if any uncovered blocks remain after exclusions.
+func ProcessProfile(r io.Reader, format, reportPath string, w io.Writer) error {
+	cfg := LoadConfig(".coverage.toml")
+	_, modName := FindModule(".")
+
+	allBlocks := ParseProfile(r)
+	allBlocks = ExcludeFiles(allBlocks, cfg.Exclude.Files, modName)
+	uncovered := MergeBlocks(UncoveredBlocks(allBlocks))
+
+	if reportPath != "" {
+		if err := lcov.WriteReport(reportPath, allBlocks); err != nil {
+			return fmt.Errorf("write lcov report: %w", err)
+		}
+	}
+
+	for _, b := range uncovered {
+		b.Lines, _ = ReadLines(ResolveFile(b.File, "."), b.Start, b.End)
+		if ColorEnabled() {
+			b.Lines = HighlightLines(b.Lines)
+		}
+		b.Color = ColorEnabled()
+		out, err := formatters.Format(format, b)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintln(w, out)
+	}
+
+	if len(uncovered) > 0 {
+		return ErrUncovered
+	}
+	return nil
+}
+
+type Config struct {
+	Exclude struct {
+		Files []string `toml:"files"`
+	} `toml:"exclude"`
+}
+
+func LoadConfig(path string) Config {
+	var cfg Config
+	if _, err := toml.DecodeFile(path, &cfg); err != nil && !os.IsNotExist(err) {
+		fmt.Fprintf(os.Stderr, "warning: could not load config: %v\n", err)
+	}
+	return cfg
 }

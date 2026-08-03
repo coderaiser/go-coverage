@@ -100,7 +100,7 @@ func TestRunFormat(t *testing.T) {
 
 		var sb strings.Builder
 		err := Run([]string{"-f", "nope"}, &sb)
-		t.Error(err)
+		t.Ok(err)
 		t.End()
 	})
 }

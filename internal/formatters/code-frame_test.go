@@ -30,6 +30,7 @@ func TestCodeFrame(t *testing.T) {
 			Lines: []string{"a", "b", "c"},
 			Color: true,
 		})
+
 		t.Match(result, "\033[31m")
 		t.End()
 	})

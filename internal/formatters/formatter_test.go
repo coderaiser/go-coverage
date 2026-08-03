@@ -12,7 +12,7 @@ import (
 func TestFormat(t *testing.T) {
 	Test(t, "formatter: unknown format returns error", func(t *T) {
 		_, err := formatters.Format("nope", block.Block{File: "main.go", Start: 1, End: 1})
-		t.Error(err)
+		t.Ok(err)
 		t.End()
 	})
 

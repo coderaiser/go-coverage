@@ -12,7 +12,7 @@ import (
 func TestHelp(t *testing.T) {
 	tape.Test(t, "help: contains usage line", func(t *tape.T) {
 		result := coverage.Help()
-		t.Match(result, "usage: go-coverage [options]")
+		t.Match(result, "usage: coverage [options]")
 		t.End()
 	})
 

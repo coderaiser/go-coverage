@@ -6,8 +6,6 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/BurntSushi/toml"
-
 	coverage "coderaiser/go-coverage"
 	"coderaiser/go-coverage/internal/block"
 	"coderaiser/go-coverage/internal/formatters"
@@ -59,20 +57,6 @@ func (t *tempFile) Close() error {
 	return err
 }
 
-type Config struct {
-	Exclude struct {
-		Files []string `toml:"files"`
-	} `toml:"exclude"`
-}
-
-func loadConfig(path string) Config {
-	var cfg Config
-	if _, err := toml.DecodeFile(path, &cfg); err != nil && !os.IsNotExist(err) {
-		fmt.Fprintf(os.Stderr, "warning: could not load config: %v\n", err)
-	}
-	return cfg
-}
-
 func Run(args []string, stdout io.Writer) error {
 	format := "lines"
 	reportPath := ""
@@ -103,7 +87,7 @@ func Run(args []string, stdout io.Writer) error {
 		return err
 	}
 
-	cfg := loadConfig(".coverage.toml")
+	cfg := coverage.LoadConfig(".coverage.toml")
 
 	dir, _ := os.Getwd()
 	_, modName := coverage.FindModule(dir)

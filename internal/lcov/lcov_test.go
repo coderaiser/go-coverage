@@ -148,7 +148,7 @@ func TestWriteReport(t *testing.T) {
 
 	Test(t, "lcov: create fails on bad path returns error", func(t *T) {
 		err := WriteReport("/nonexistent/dir/coverage.lcov", nil)
-		t.Error(err)
+		t.Ok(err)
 		t.End()
 	})
 
@@ -162,7 +162,7 @@ func TestWriteReport(t *testing.T) {
 		dir := t.TB().TempDir()
 		path := filepath.Join(dir, "coverage.lcov")
 		err := WriteReport(path, []block.Block{{File: "main.go", Start: 1, End: 1, Count: 0}})
-		t.Error(err)
+		t.Ok(err)
 		t.End()
 	})
 
@@ -192,7 +192,7 @@ func TestWriteReport(t *testing.T) {
 		_, _ = bw.Write(make([]byte, 4096))
 		f.Close() // close underlying file so Flush fails
 		err := bw.Flush()
-		t.Error(err)
+		t.Ok(err)
 		t.End()
 	})
 }
@@ -204,13 +204,13 @@ func TestWrite(t *testing.T) {
 
 	Test(t, "lcov: write SF error returns error", func(t *T) {
 		err := write(&failWriter{remaining: 0}, oneBlock)
-		t.Error(err)
+		t.Ok(err)
 		t.End()
 	})
 
 	Test(t, "lcov: write DA error returns error", func(t *T) {
 		err := write(&failWriter{remaining: len("SF:main.go\n")}, oneBlock)
-		t.Error(err)
+		t.Ok(err)
 		t.End()
 	})
 
@@ -218,7 +218,7 @@ func TestWrite(t *testing.T) {
 		sfLen := len(fmt.Sprintf("SF:%s\n", "main.go"))
 		daLen := len(fmt.Sprintf("DA:%d,%d\n", 1, 0))
 		err := write(&failWriter{remaining: sfLen + daLen}, oneBlock)
-		t.Error(err)
+		t.Ok(err)
 		t.End()
 	})
 

@@ -24,7 +24,7 @@ func HelpFromTOML(data []byte) string {
 	}
 
 	var b strings.Builder
-	b.WriteString("usage: go-coverage [options]\n\nflags:\n")
+	b.WriteString("usage: coverage [options]\n\nflags:\n")
 
 	flagOrder := []string{
 		"-f",
