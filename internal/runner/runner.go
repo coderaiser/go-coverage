@@ -1,7 +1,6 @@
 package runner
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -14,8 +13,6 @@ import (
 	"coderaiser/go-coverage/internal/formatters"
 	"coderaiser/go-coverage/internal/lcov"
 )
-
-var ErrUncovered = errors.New("uncovered blocks found")
 
 var runGoTest = func() (io.ReadCloser, error) {
 	f, err := os.CreateTemp("", "coverage-*.out")
@@ -173,7 +170,7 @@ func Run(args []string, stdout io.Writer) error {
 	}
 
 	if reported > 0 {
-		return ErrUncovered
+		return coverage.ErrUncovered
 	}
 
 	fmt.Println("💪 coverage 100%, good job!")

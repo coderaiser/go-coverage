@@ -42,7 +42,7 @@ func TestRunUncovered(t *testing.T) {
 	runGoTest = mockGoTest("mode: set\ngithub.com/app/main.go:10.1,12.2 2 0\n")
 
 	var sb strings.Builder
-	if err := Run(nil, &sb); err != ErrUncovered {
+	if err := Run(nil, &sb); err != coverage.ErrUncovered {
 		t.Fatalf("expected ErrUncovered, got %v", err)
 	}
 }

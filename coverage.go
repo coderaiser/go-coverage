@@ -2,6 +2,7 @@ package coverage
 
 import (
 	"bufio"
+	"errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -16,6 +17,8 @@ import (
 )
 
 var highlight = quick.Highlight
+var ErrUncovered = errors.New("uncovered blocks found")
+
 
 func ColorEnabled() bool {
 	return os.Getenv("COLOR") != "0"
