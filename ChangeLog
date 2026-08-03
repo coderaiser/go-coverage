@@ -1,3 +1,12 @@
+2026.08.03, v1.4.0
+
+fix:
+- 0b33ada deprecated
+
+feature:
+- 17aa954 ProcessProfile: add
+- 489b074 ErrCoverage: runner -> coverage
+
 2026.08.02, v1.3.1
 
 fix:
