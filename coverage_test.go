@@ -334,7 +334,8 @@ func TestLoadConfig(t *testing.T) {
 func TestMergeExcludes(t *testing.T) {
 	Test(t, "MergeExcludes: deduplicates entries", func(t *T) {
 		result := coverage.MergeExcludes([]string{"a", "b"}, []string{"b", "c"})
-		t.DeepEqual(result, []string{"a", "b", "c"})
+		expected := []string{"a", "b", "c"}
+		t.DeepEqual(result, expected)
 		t.End()
 	})
 
@@ -347,13 +348,15 @@ func TestMergeExcludes(t *testing.T) {
 
 	Test(t, "MergeExcludes: one empty one non-empty", func(t *T) {
 		result := coverage.MergeExcludes(nil, []string{"x", "y"})
-		t.DeepEqual(result, []string{"x", "y"})
+		expected := []string{"x", "y"}
+		t.DeepEqual(result, expected)
 		t.End()
 	})
 
 	Test(t, "MergeExcludes: no duplicates passes through", func(t *T) {
 		result := coverage.MergeExcludes([]string{"a"}, []string{"b"})
-		t.DeepEqual(result, []string{"a", "b"})
+		expected := []string{"a", "b"}
+		t.DeepEqual(result, expected)
 		t.End()
 	})
 }
