@@ -301,3 +301,59 @@ func TestErrUncoveredMessage(t *testing.T) {
 		t.End()
 	})
 }
+
+func TestLoadConfig(t *testing.T) {
+	Test(t, "coverage: LoadConfig returns empty config for missing file", func(t *T) {
+		cfg := coverage.LoadConfig("/nonexistent/path/.coverage.toml")
+		result := len(cfg.Exclude.Files)
+		t.Equal(result, 0)
+		t.End()
+	})
+
+	Test(t, "coverage: LoadConfig parses exclude.files", func(t *T) {
+		dir := t.TB().TempDir()
+		path := filepath.Join(dir, ".coverage.toml")
+		writeFile(path, "[exclude]\nfiles = [\"vendor/**\"]\n")
+		cfg := coverage.LoadConfig(path)
+		result := cfg.Exclude.Files[0]
+		t.Equal(result, "vendor/**")
+		t.End()
+	})
+
+	Test(t, "coverage: LoadConfig warns and returns empty config for malformed toml", func(t *T) {
+		dir := t.TB().TempDir()
+		path := filepath.Join(dir, ".coverage.toml")
+		writeFile(path, "this is not toml [\n")
+		cfg := coverage.LoadConfig(path)
+		result := len(cfg.Exclude.Files)
+		t.Equal(result, 0)
+		t.End()
+	})
+}
+
+func TestMergeExcludes(t *testing.T) {
+	Test(t, "MergeExcludes: deduplicates entries", func(t *T) {
+		result := coverage.MergeExcludes([]string{"a", "b"}, []string{"b", "c"})
+		t.DeepEqual(result, []string{"a", "b", "c"})
+		t.End()
+	})
+
+	Test(t, "MergeExcludes: empty slices returns empty", func(t *T) {
+		result := coverage.MergeExcludes(nil, nil)
+		result2 := len(result)
+		t.Equal(result2, 0)
+		t.End()
+	})
+
+	Test(t, "MergeExcludes: one empty one non-empty", func(t *T) {
+		result := coverage.MergeExcludes(nil, []string{"x", "y"})
+		t.DeepEqual(result, []string{"x", "y"})
+		t.End()
+	})
+
+	Test(t, "MergeExcludes: no duplicates passes through", func(t *T) {
+		result := coverage.MergeExcludes([]string{"a"}, []string{"b"})
+		t.DeepEqual(result, []string{"a", "b"})
+		t.End()
+	})
+}

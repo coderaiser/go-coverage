@@ -22,6 +22,16 @@ func TestCodeFrame(t *testing.T) {
 		t.End()
 	})
 
+	Test(t, "code-frame: absolute path produces file:/// (three slashes)", func(t *T) {
+		result := formatters.CodeFrame{}.Format(block.Block{
+			File:  "/Users/coderaiser/indra/lint.go",
+			Start: 45,
+			End:   47,
+		})
+		t.Match(result, "file:///Users/coderaiser/indra/lint.go:45: 45-47")
+		t.End()
+	})
+
 	Test(t, "code-frame: color contains ANSI red", func(t *T) {
 		result := formatters.CodeFrame{}.Format(block.Block{
 			File:  "main.go",

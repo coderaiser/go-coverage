@@ -194,3 +194,72 @@ func TestProcessProfileCodeFrameFormat(t *testing.T) {
 		t.End()
 	})
 }
+
+func TestProcessProfileFileFieldIsAbsolute(t *testing.T) {
+	Test(t, "ProcessProfile: file field in output is absolute path", func(t *T) {
+		dir := t.TB().TempDir()
+		orig, _ := os.Getwd()
+		os.Chdir(dir)
+		defer os.Chdir(orig)
+
+		// create a minimal go.mod + source file so ResolveFile can resolve
+		os.WriteFile(filepath.Join(dir, "go.mod"), []byte("module github.com/app\n\ngo 1.21\n"), 0o644)
+		os.MkdirAll(filepath.Join(dir, "github.com/app"), 0o755)
+		os.WriteFile(filepath.Join(dir, "github.com/app/main.go"), []byte("package main\n\nfunc F() {}\nfunc G() {}\n"), 0o644)
+
+		profile := "mode: atomic\ngithub.com/app/main.go:3.1,4.2 1 0\n"
+
+		var out strings.Builder
+		coverage.ProcessProfile(strings.NewReader(profile), "lines", "", &out)
+
+		result := out.String()
+		t.Match(result, "file:///")
+		t.End()
+	})
+}
+
+func TestProcessProfileWithConfig(t *testing.T) {
+	Test(t, "ProcessProfileWithConfig: extra excludes applied on top of .coverage.toml", func(t *T) {
+		dir := t.TB().TempDir()
+		orig, _ := os.Getwd()
+		os.Chdir(dir)
+		defer os.Chdir(orig)
+
+		// .coverage.toml excludes nothing
+		os.WriteFile(filepath.Join(dir, ".coverage.toml"), []byte("[exclude]\nfiles = []\n"), 0o644)
+
+		var out strings.Builder
+		err := coverage.ProcessProfileWithConfig(
+			strings.NewReader(oneUncovered),
+			"lines", "", []string{"github.com/app/main.go"}, &out,
+		)
+		// excluded via extra excludes → no uncovered blocks
+		t.Ok(err == nil)
+		t.End()
+	})
+
+	Test(t, "ProcessProfileWithConfig: empty extra excludes behaves like ProcessProfile", func(t *T) {
+		var out strings.Builder
+		err := coverage.ProcessProfileWithConfig(
+			strings.NewReader(allCovered), "lines", "", nil, &out,
+		)
+		t.Ok(err == nil)
+		t.End()
+	})
+
+	Test(t, "ProcessProfileWithConfig: extra excludes suppress output", func(t *T) {
+		dir := t.TB().TempDir()
+		orig, _ := os.Getwd()
+		os.Chdir(dir)
+		defer os.Chdir(orig)
+
+		var out strings.Builder
+		coverage.ProcessProfileWithConfig(
+			strings.NewReader(oneUncovered),
+			"lines", "", []string{"github.com/app/main.go"}, &out,
+		)
+		result := out.String()
+		t.Equal(result, "")
+		t.End()
+	})
+}

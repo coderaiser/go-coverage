@@ -3,6 +3,7 @@ package formatters
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/coderaiser/go-coverage/internal/block"
 )
@@ -12,7 +13,7 @@ type Lines struct{}
 func (Lines) Format(b block.Block) string {
 	prefix := ""
 
-	if os.Getenv("TERMINAL_EMULATOR") == "JetBrains-JediTerm" {
+	if os.Getenv("TERMINAL_EMULATOR") == "JetBrains-JediTerm" || filepath.IsAbs(b.File) {
 		prefix = "file://"
 	}
 

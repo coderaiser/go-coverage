@@ -113,7 +113,8 @@ func ResolveFile(file, dir string) string {
 		return file
 	}
 
-	return filepath.Join(modRoot, file)
+	abs, _ := filepath.Abs(filepath.Join(modRoot, file))
+	return abs
 }
 
 func FindModule(dir string) (root, name string) {
@@ -279,7 +280,14 @@ func isExcluded(file string, patterns []string, modName string) bool {
 // and optionally writes an lcov report to reportPath (pass "" to skip).
 // Returns ErrUncovered if any uncovered blocks remain after exclusions.
 func ProcessProfile(r io.Reader, format, reportPath string, w io.Writer) error {
+	return ProcessProfileWithConfig(r, format, reportPath, nil, w)
+}
+
+// ProcessProfileWithConfig is like ProcessProfile but merges extraExclude on top
+// of whatever .coverage.toml already defines. Pass nil to apply no extra excludes.
+func ProcessProfileWithConfig(r io.Reader, format, reportPath string, extraExclude []string, w io.Writer) error {
 	cfg := LoadConfig(".coverage.toml")
+	cfg.Exclude.Files = MergeExcludes(cfg.Exclude.Files, extraExclude)
 	_, modName := FindModule(".")
 
 	allBlocks := ParseProfile(r)
@@ -293,7 +301,8 @@ func ProcessProfile(r io.Reader, format, reportPath string, w io.Writer) error {
 	}
 
 	for _, b := range uncovered {
-		b.Lines, _ = ReadLines(ResolveFile(b.File, "."), b.Start, b.End)
+		b.File = ResolveFile(b.File, ".")
+		b.Lines, _ = ReadLines(b.File, b.Start, b.End)
 		if ColorEnabled() {
 			b.Lines = HighlightLines(b.Lines)
 		}
@@ -323,4 +332,21 @@ func LoadConfig(path string) Config {
 		fmt.Fprintf(os.Stderr, "warning: could not load config: %v\n", err)
 	}
 	return cfg
+}
+
+// MergeExcludes concatenates two exclude lists, deduplicating entries.
+// The order is a first, then b; duplicates are removed preserving first occurrence.
+func MergeExcludes(a, b []string) []string {
+	seen := make(map[string]bool, len(a)+len(b))
+	out := make([]string, 0, len(a)+len(b))
+	for _, s := range append(a, b...) {
+		if !seen[s] {
+			seen[s] = true
+			out = append(out, s)
+		}
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
 }
