@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -12,7 +13,11 @@ import (
 	"github.com/coderaiser/go-coverage/internal/lcov"
 )
 
-var runGoTest = func() (io.ReadCloser, error) {
+// ErrTestFailed is returned when `go test` exits non-zero so callers can
+// distinguish a test failure from an unexpected infrastructure error.
+var ErrTestFailed = errors.New("tests failed")
+
+var runGoTest = func(stdout io.Writer) (io.ReadCloser, error) {
 	f, err := os.CreateTemp("", "coverage-*.out")
 	if err != nil {
 		return nil, err
@@ -28,11 +33,15 @@ var runGoTest = func() (io.ReadCloser, error) {
 	}
 
 	cmd := exec.Command("go", "test", "-coverprofile="+f.Name(), "-covermode=atomic", "./...")
-	cmd.Stderr = nil
-	cmd.Stdout = nil
+	cmd.Stdout = stdout
+	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
 		cleanup()
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) {
+			return nil, ErrTestFailed
+		}
 		return nil, err
 	}
 
@@ -82,8 +91,11 @@ func Run(args []string, stdout io.Writer) error {
 		}
 	}
 
-	r, err := runGoTest()
+	r, err := runGoTest(stdout)
 	if err != nil {
+		if errors.Is(err, ErrTestFailed) {
+			return ErrTestFailed
+		}
 		return err
 	}
 

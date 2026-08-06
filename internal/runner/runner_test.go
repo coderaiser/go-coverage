@@ -1,6 +1,8 @@
 package runner
 
 import (
+	"errors"
+	"fmt"
 	"io"
 	"strings"
 	"testing"
@@ -17,9 +19,16 @@ type nopCloser struct {
 
 func (nopCloser) Close() error { return nil }
 
-func mockGoTest(data string) func() (io.ReadCloser, error) {
-	return func() (io.ReadCloser, error) {
+func mockGoTest(data string) func(io.Writer) (io.ReadCloser, error) {
+	return func(_ io.Writer) (io.ReadCloser, error) {
 		return nopCloser{strings.NewReader(data)}, nil
+	}
+}
+
+func mockGoTestFail() func(io.Writer) (io.ReadCloser, error) {
+	return func(w io.Writer) (io.ReadCloser, error) {
+		fmt.Fprintln(w, "--- FAIL: TestSomething (0.00s)")
+		return nil, ErrTestFailed
 	}
 }
 
@@ -44,6 +53,22 @@ func TestRunUncovered(t *testing.T) {
 	var sb strings.Builder
 	if err := Run(nil, &sb); err != coverage.ErrUncovered {
 		t.Fatalf("expected ErrUncovered, got %v", err)
+	}
+}
+
+func TestRunTestFailed(t *testing.T) {
+	old := runGoTest
+	defer func() { runGoTest = old }()
+
+	runGoTest = mockGoTestFail()
+
+	var sb strings.Builder
+	err := Run(nil, &sb)
+	if !errors.Is(err, ErrTestFailed) {
+		t.Fatalf("expected ErrTestFailed, got %v", err)
+	}
+	if !strings.Contains(sb.String(), "--- FAIL") {
+		t.Fatalf("expected test output forwarded to stdout, got: %q", sb.String())
 	}
 }
 
