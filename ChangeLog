@@ -1,3 +1,10 @@
+2026.08.06, v1.5.0
+
+feature:
+- 1e814a2 formatters: restructure
+- 2efc880 formatter-code-frame: optional file:// prefix
+- 1ef0833 extend coverage
+
 2026.08.04, v1.4.3
 
 fix:
