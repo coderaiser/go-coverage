@@ -195,25 +195,42 @@ func TestProcessProfileCodeFrameFormat(t *testing.T) {
 	})
 }
 
+func setupModuleDir(t *T) (dir, profile string) {
+	dir = t.TB().TempDir()
+	orig, _ := os.Getwd()
+	os.Chdir(dir)
+	t.TB().Cleanup(func() { os.Chdir(orig) })
+
+	os.WriteFile(filepath.Join(dir, "go.mod"), []byte("module github.com/app\n\ngo 1.21\n"), 0o644)
+	os.MkdirAll(filepath.Join(dir, "github.com/app"), 0o755)
+	os.WriteFile(filepath.Join(dir, "github.com/app/main.go"), []byte("package main\n\nfunc F() {}\nfunc G() {}\n"), 0o644)
+
+	profile = "mode: atomic\ngithub.com/app/main.go:3.1,4.2 1 0\n"
+	return
+}
+
 func TestProcessProfileFileFieldIsAbsolute(t *testing.T) {
-	Test(t, "ProcessProfile: file field in output is absolute path", func(t *T) {
-		dir := t.TB().TempDir()
-		orig, _ := os.Getwd()
-		os.Chdir(dir)
-		defer os.Chdir(orig)
-
-		// create a minimal go.mod + source file so ResolveFile can resolve
-		os.WriteFile(filepath.Join(dir, "go.mod"), []byte("module github.com/app\n\ngo 1.21\n"), 0o644)
-		os.MkdirAll(filepath.Join(dir, "github.com/app"), 0o755)
-		os.WriteFile(filepath.Join(dir, "github.com/app/main.go"), []byte("package main\n\nfunc F() {}\nfunc G() {}\n"), 0o644)
-
-		profile := "mode: atomic\ngithub.com/app/main.go:3.1,4.2 1 0\n"
-
+	Test(t, "ProcessProfile: lines format emits absolute path with file:///", func(t *T) {
+		_, profile := setupModuleDir(t)
 		var out strings.Builder
 		coverage.ProcessProfile(strings.NewReader(profile), "lines", "", &out)
+		t.Match(out.String(), "file:///")
+		t.End()
+	})
 
-		result := out.String()
-		t.Match(result, "file:///")
+	Test(t, "ProcessProfile: code-frame format emits absolute path with file:///", func(t *T) {
+		_, profile := setupModuleDir(t)
+		var out strings.Builder
+		coverage.ProcessProfile(strings.NewReader(profile), "code-frame", "", &out)
+		t.Match(out.String(), "file:///")
+		t.End()
+	})
+
+	Test(t, "ProcessProfile: json-lines format emits absolute path in file field", func(t *T) {
+		dir, profile := setupModuleDir(t)
+		var out strings.Builder
+		coverage.ProcessProfile(strings.NewReader(profile), "json-lines", "", &out)
+		t.Match(out.String(), dir) // dir is absolute, so file field must contain it
 		t.End()
 	})
 }
