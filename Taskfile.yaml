@@ -4,7 +4,6 @@ tasks:
     desc: Run all unit tests
     cmds:
       - tape
-      - go test ./cmd/lint/
   coverage:
     desc: |
       Run tests with coverage scoped to the library package only.
@@ -31,14 +30,14 @@ tasks:
     cmds:
       - goreleaser check
   lint:
-    desc: Run go vet
+    desc: Run linters
     cmds:
-      - go run ./cmd/lint ./...
+      - indra ./...
       - golangci-lint run
   fix:lint:
-    desc: Run fix lint
+    desc: Fix lint issues
     cmds:
-      - go run ./cmd/lint --fix ./...
+      - indra --fix ./...
       - golangci-lint run --fix
   clean:
     desc: Remove build artefacts
