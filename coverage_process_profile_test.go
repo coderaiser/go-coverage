@@ -214,7 +214,8 @@ func TestProcessProfileFileFieldIsAbsolute(t *testing.T) {
 		_, profile := setupModuleDir(t)
 		var out strings.Builder
 		coverage.ProcessProfile(strings.NewReader(profile), "lines", "", &out)
-		t.Match(out.String(), "file:///")
+		result := out.String()
+		t.Match(result, "file:///")
 		t.End()
 	})
 
@@ -222,7 +223,8 @@ func TestProcessProfileFileFieldIsAbsolute(t *testing.T) {
 		_, profile := setupModuleDir(t)
 		var out strings.Builder
 		coverage.ProcessProfile(strings.NewReader(profile), "code-frame", "", &out)
-		t.Match(out.String(), "file:///")
+		result := out.String()
+		t.Match(result, "file:///")
 		t.End()
 	})
 
@@ -230,7 +232,8 @@ func TestProcessProfileFileFieldIsAbsolute(t *testing.T) {
 		dir, profile := setupModuleDir(t)
 		var out strings.Builder
 		coverage.ProcessProfile(strings.NewReader(profile), "json-lines", "", &out)
-		t.Match(out.String(), dir) // dir is absolute, so file field must contain it
+		result := out.String()
+		t.Match(result, dir) // dir is absolute, so file field must contain it
 		t.End()
 	})
 }
