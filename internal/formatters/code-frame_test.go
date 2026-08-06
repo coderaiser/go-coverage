@@ -10,29 +10,51 @@ import (
 )
 
 func TestCodeFrame(t *testing.T) {
-	Test(t, "code-frame: single line omits range in header", func(t *T) {
+	Test(t, "code-frame: relative path has no file:// prefix", func(t *T) {
+		t.Setenv("TERMINAL_EMULATOR", "")
 		result := formatters.CodeFrame{}.Format(block.Block{File: "main.go", Start: 24, End: 24})
-		t.Match(result, "file://main.go:24: 24")
+		t.Equal(result, "main.go:24: 24")
 		t.End()
 	})
 
-	Test(t, "code-frame: range header", func(t *T) {
+	Test(t, "code-frame: range header no prefix", func(t *T) {
+		t.Setenv("TERMINAL_EMULATOR", "")
 		result := formatters.CodeFrame{}.Format(block.Block{File: "main.go", Start: 10, End: 12})
-		t.Match(result, "file://main.go:10: 10-12")
+		t.Equal(result, "main.go:10: 10-12")
+		t.End()
+	})
+
+	Test(t, "code-frame: JetBrains prepends file://", func(t *T) {
+		t.Setenv("TERMINAL_EMULATOR", "JetBrains-JediTerm")
+		result := formatters.CodeFrame{}.Format(block.Block{File: "main.go", Start: 10, End: 12})
+		t.Equal(result, "file://main.go:10: 10-12")
 		t.End()
 	})
 
 	Test(t, "code-frame: absolute path produces file:/// (three slashes)", func(t *T) {
+		t.Setenv("TERMINAL_EMULATOR", "JetBrains-JediTerm")
 		result := formatters.CodeFrame{}.Format(block.Block{
 			File:  "/Users/coderaiser/indra/lint.go",
 			Start: 45,
 			End:   47,
 		})
-		t.Match(result, "file:///Users/coderaiser/indra/lint.go:45: 45-47")
+		t.Equal(result, "file:///Users/coderaiser/indra/lint.go:45: 45-47")
+		t.End()
+	})
+
+	Test(t, "code-frame: absolute path outside JetBrains prepends file:///", func(t *T) {
+		t.Setenv("TERMINAL_EMULATOR", "")
+		result := formatters.CodeFrame{}.Format(block.Block{
+			File:  "/home/user/project/main.go",
+			Start: 10,
+			End:   12,
+		})
+		t.Equal(result, "file:///home/user/project/main.go:10: 10-12")
 		t.End()
 	})
 
 	Test(t, "code-frame: color contains ANSI red", func(t *T) {
+		t.Setenv("TERMINAL_EMULATOR", "")
 		result := formatters.CodeFrame{}.Format(block.Block{
 			File:  "main.go",
 			Start: 10,
@@ -40,7 +62,6 @@ func TestCodeFrame(t *testing.T) {
 			Lines: []string{"a", "b", "c"},
 			Color: true,
 		})
-
 		t.Match(result, "\033[31m")
 		t.End()
 	})

@@ -2,6 +2,8 @@ package formatters
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/coderaiser/go-coverage/internal/block"
@@ -10,11 +12,16 @@ import (
 type CodeFrame struct{}
 
 func (CodeFrame) Format(b block.Block) string {
+	prefix := ""
+	if os.Getenv("TERMINAL_EMULATOR") == "JetBrains-JediTerm" || filepath.IsAbs(b.File) {
+		prefix = "file://"
+	}
+
 	var header string
 	if b.Start == b.End {
-		header = fmt.Sprintf("file://%s:%d: %d", b.File, b.Start, b.Start)
+		header = fmt.Sprintf("%s%s:%d: %d", prefix, b.File, b.Start, b.Start)
 	} else {
-		header = fmt.Sprintf("file://%s:%d: %d-%d", b.File, b.Start, b.Start, b.End)
+		header = fmt.Sprintf("%s%s:%d: %d-%d", prefix, b.File, b.Start, b.Start, b.End)
 	}
 
 	if len(b.Lines) == 0 {
