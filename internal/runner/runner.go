@@ -8,7 +8,7 @@ import (
 
 	coverage "github.com/coderaiser/go-coverage"
 	"github.com/coderaiser/go-coverage/internal/block"
-	"github.com/coderaiser/go-coverage/internal/formatters"
+	"github.com/coderaiser/go-coverage/internal/formatter"
 	"github.com/coderaiser/go-coverage/internal/lcov"
 )
 
@@ -142,7 +142,7 @@ func Run(args []string, stdout io.Writer) error {
 			Color: color,
 		}
 
-		out, err := formatters.Format(format, blk)
+		out, err := formatter.Format(format, blk)
 		if err != nil {
 			return err
 		}

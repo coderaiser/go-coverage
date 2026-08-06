@@ -1,9 +1,12 @@
-package formatters
+package formatter
 
 import (
 	"fmt"
 
 	"github.com/coderaiser/go-coverage/internal/block"
+	"github.com/coderaiser/go-coverage/internal/formatter_code_frame"
+	"github.com/coderaiser/go-coverage/internal/formatter_json_lines"
+	"github.com/coderaiser/go-coverage/internal/formatter_lines"
 )
 
 type Formatter interface {
@@ -11,9 +14,9 @@ type Formatter interface {
 }
 
 var registry = map[string]Formatter{
-	"lines":      Lines{},
-	"code-frame": CodeFrame{},
-	"json-lines": JSONLines{},
+	"lines":      formatter_lines.Lines{},
+	"code-frame": formatter_code_frame.CodeFrame{},
+	"json-lines": formatter_json_lines.JSONLines{},
 }
 
 func Format(name string, b block.Block) (string, error) {

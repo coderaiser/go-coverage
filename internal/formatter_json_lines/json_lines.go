@@ -1,4 +1,4 @@
-package formatters
+package formatter_json_lines
 
 import (
 	"encoding/json"

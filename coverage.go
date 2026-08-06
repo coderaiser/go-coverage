@@ -16,7 +16,7 @@ import (
 	"github.com/bmatcuk/doublestar/v4"
 
 	"github.com/coderaiser/go-coverage/internal/block"
-	"github.com/coderaiser/go-coverage/internal/formatters"
+	"github.com/coderaiser/go-coverage/internal/formatter"
 	"github.com/coderaiser/go-coverage/internal/lcov"
 )
 
@@ -307,7 +307,7 @@ func ProcessProfileWithConfig(r io.Reader, format, reportPath string, extraExclu
 			b.Lines = HighlightLines(b.Lines)
 		}
 		b.Color = ColorEnabled()
-		out, err := formatters.Format(format, b)
+		out, err := formatter.Format(format, b)
 		if err != nil {
 			return err
 		}

@@ -1,4 +1,4 @@
-package formatters
+package formatter_code_frame
 
 import (
 	"fmt"
