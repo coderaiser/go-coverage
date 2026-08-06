@@ -1,3 +1,11 @@
+2026.08.07, v1.5.2
+
+fix:
+- 208ec9e coverage: module
+
+feature:
+- 313321c lint -> indra
+
 2026.08.06, v1.5.1
 
 feature:
