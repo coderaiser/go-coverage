@@ -324,6 +324,15 @@ type Config struct {
 	Exclude struct {
 		Files []string `toml:"files"`
 	} `toml:"exclude"`
+
+	Formatter struct {
+		// Format controls the test reporter: fail, tap, short, progress-bar,
+		// json-lines, time. Default: progress-bar locally, fail on CI.
+		Format string `toml:"format"`
+		// Color is the progress bar color as a hex string or chalk named color.
+		// Default: "red".
+		Color string `toml:"color"`
+	} `toml:"formatter"`
 }
 
 func LoadConfig(path string) Config {
