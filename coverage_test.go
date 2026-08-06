@@ -162,6 +162,18 @@ func TestResolveFile(t *testing.T) {
 		t.End()
 	})
 
+	Test(t, "coverage: ResolveFile strips module-qualified path from coverprofile", func(t *T) {
+		dir := t.TB().TempDir()
+		if err := writeFile(filepath.Join(dir, "go.mod"), "module mymod/myapp\n\ngo 1.22\n"); err != nil {
+			t.TB().Fatal(err)
+		}
+		// coverprofile paths include the module name prefix
+		result := coverage.ResolveFile("mymod/myapp/pkg/foo.go", dir)
+		expected := filepath.Join(dir, "pkg/foo.go")
+		t.Equal(result, expected)
+		t.End()
+	})
+
 	Test(t, "coverage: ResolveFile returns path unchanged when no module", func(t *T) {
 		result := coverage.ResolveFile("some/path/foo.go", t.TB().TempDir())
 		t.Equal(result, "some/path/foo.go")

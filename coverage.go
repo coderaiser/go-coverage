@@ -108,9 +108,15 @@ func UncoveredBlocks(blocks []block.Block) []block.Block {
 }
 
 func ResolveFile(file, dir string) string {
-	modRoot, _ := FindModule(dir)
+	modRoot, modName := FindModule(dir)
 	if modRoot == "" {
 		return file
+	}
+
+	// coverprofile paths are module-qualified (e.g. "github.com/user/mod/pkg/file.go");
+	// strip the module name prefix so filepath.Join doesn't duplicate it.
+	if modName != "" && strings.HasPrefix(file, modName+"/") {
+		file = file[len(modName)+1:]
 	}
 
 	abs, _ := filepath.Abs(filepath.Join(modRoot, file))
