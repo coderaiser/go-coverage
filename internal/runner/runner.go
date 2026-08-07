@@ -117,7 +117,8 @@ func Run(args []string, stdout io.Writer) error {
 	// Resolve test reporter format
 	testFormat := cfg.Formatter.Format
 	if testFormat == "" {
-		if os.Getenv("CI") == "1" {
+		ci := os.Getenv("CI")
+		if ci == "1" || ci == "true" {
 			testFormat = "fail"
 		} else {
 			testFormat = "progress-bar"
