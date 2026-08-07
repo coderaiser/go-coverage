@@ -1,6 +1,7 @@
 *.swp
 *.log
 *.lock
+*.lcov
 
 .idea
 .DS_Store

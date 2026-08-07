@@ -327,10 +327,10 @@ func TestRunWithCodeFrame(t *testing.T) {
 	}
 
 	var sb strings.Builder
-	Run([]string{"-f", "code-frame"}, &sb)
+	Run([]string{"-f", "codeframe"}, &sb)
 	result := sb.String()
 	if !strings.Contains(result, "println") {
-		t.Fatalf("expected code-frame output, got: %q", result)
+		t.Fatalf("expected codeframe output, got: %q", result)
 	}
 }
 

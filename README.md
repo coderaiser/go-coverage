@@ -16,7 +16,7 @@ $ coverage
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `-f, --format` | `lines` | Output format: `lines`, `code-frame`, `json-lines` |
+| `-f, --format` | `lines` | Output format: `lines`, `codeframe`, `json-lines` |
 | `-r, --report [file]` | `coverage.lcov` | Write lcov report (for coveralls, codecov, genhtml) |
 
 ## Quick start
@@ -26,7 +26,7 @@ $ coverage
 coverage
 
 # Show with source context
-coverage -f code-frame
+coverage -f codeframe
 
 # Machine-readable JSON output
 coverage -f json-lines
@@ -38,7 +38,7 @@ coverage -r
 coverage -r lcov.info
 
 # Check coverage and produce lcov report in one pass
-coverage -r coverage.lcov -f code-frame
+coverage -r coverage.lcov -f codeframe
 ```
 
 Set `COLOR=0` to disable ANSI colours (useful in CI or when piping output).

@@ -10,28 +10,28 @@ import (
 )
 
 func TestCodeFrame(t *testing.T) {
-	Test(t, "code-frame: relative path has no file:// prefix", func(t *T) {
+	Test(t, "codeframe: relative path has no file:// prefix", func(t *T) {
 		t.Setenv("TERMINAL_EMULATOR", "")
 		result := formatter_code_frame.CodeFrame{}.Format(block.Block{File: "main.go", Start: 24, End: 24})
 		t.Equal(result, "main.go:24: 24")
 		t.End()
 	})
 
-	Test(t, "code-frame: range header no prefix", func(t *T) {
+	Test(t, "codeframe: range header no prefix", func(t *T) {
 		t.Setenv("TERMINAL_EMULATOR", "")
 		result := formatter_code_frame.CodeFrame{}.Format(block.Block{File: "main.go", Start: 10, End: 12})
 		t.Equal(result, "main.go:10: 10-12")
 		t.End()
 	})
 
-	Test(t, "code-frame: JetBrains prepends file://", func(t *T) {
+	Test(t, "codeframe: JetBrains prepends file://", func(t *T) {
 		t.Setenv("TERMINAL_EMULATOR", "JetBrains-JediTerm")
 		result := formatter_code_frame.CodeFrame{}.Format(block.Block{File: "main.go", Start: 10, End: 12})
 		t.Equal(result, "file://main.go:10: 10-12")
 		t.End()
 	})
 
-	Test(t, "code-frame: absolute path produces file:/// (three slashes)", func(t *T) {
+	Test(t, "codeframe: absolute path produces file:/// (three slashes)", func(t *T) {
 		t.Setenv("TERMINAL_EMULATOR", "JetBrains-JediTerm")
 		result := formatter_code_frame.CodeFrame{}.Format(block.Block{
 			File:  "/Users/coderaiser/indra/lint.go",
@@ -42,7 +42,7 @@ func TestCodeFrame(t *testing.T) {
 		t.End()
 	})
 
-	Test(t, "code-frame: absolute path outside JetBrains prepends file:///", func(t *T) {
+	Test(t, "codeframe: absolute path outside JetBrains prepends file:///", func(t *T) {
 		t.Setenv("TERMINAL_EMULATOR", "")
 		result := formatter_code_frame.CodeFrame{}.Format(block.Block{
 			File:  "/home/user/project/main.go",
@@ -53,7 +53,7 @@ func TestCodeFrame(t *testing.T) {
 		t.End()
 	})
 
-	Test(t, "code-frame: color contains ANSI red", func(t *T) {
+	Test(t, "codeframe: color contains ANSI red", func(t *T) {
 		t.Setenv("TERMINAL_EMULATOR", "")
 		result := formatter_code_frame.CodeFrame{}.Format(block.Block{
 			File:  "main.go",

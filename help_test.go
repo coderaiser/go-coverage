@@ -22,9 +22,9 @@ func TestHelp(t *testing.T) {
 		t.End()
 	})
 
-	tape.Test(t, "help: contains --code-frame flag", func(t *tape.T) {
+	tape.Test(t, "help: contains --codeframe flag", func(t *tape.T) {
 		result := coverage.Help()
-		t.Match(result, "--code-frame")
+		t.Match(result, "--codeframe")
 		t.End()
 	})
 
@@ -52,15 +52,15 @@ func TestHelp(t *testing.T) {
 		t.End()
 	})
 
-	tape.Test(t, "help: -f appears before --code-frame", func(t *tape.T) {
+	tape.Test(t, "help: -f appears before --codeframe", func(t *tape.T) {
 		result := coverage.Help()
-		t.Ok(strings.Index(result, "-f") < strings.Index(result, "--code-frame"))
+		t.Ok(strings.Index(result, "-f") < strings.Index(result, "--codeframe"))
 		t.End()
 	})
 
-	tape.Test(t, "help: --code-frame appears before -v", func(t *tape.T) {
+	tape.Test(t, "help: --codeframe appears before -v", func(t *tape.T) {
 		result := coverage.Help()
-		t.Ok(strings.Index(result, "--code-frame") < strings.Index(result, "-v, --version"))
+		t.Ok(strings.Index(result, "--codeframe") < strings.Index(result, "-v, --version"))
 		t.End()
 	})
 

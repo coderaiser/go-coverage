@@ -15,14 +15,14 @@ type Formatter interface {
 
 var registry = map[string]Formatter{
 	"lines":      formatter_lines.Lines{},
-	"code-frame": formatter_code_frame.CodeFrame{},
+	"codeframe": formatter_code_frame.CodeFrame{},
 	"json-lines": formatter_json_lines.JSONLines{},
 }
 
 func Format(name string, b block.Block) (string, error) {
 	f, ok := registry[name]
 	if !ok {
-		return "", fmt.Errorf("unknown format %q: use lines, code-frame, json-lines", name)
+		return "", fmt.Errorf("unknown format %q: use lines, codeframe, json-lines", name)
 	}
 
 	return f.Format(b), nil

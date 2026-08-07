@@ -188,8 +188,8 @@ func TestProcessProfileJsonLinesFormat(t *testing.T) {
 }
 
 func TestProcessProfileCodeFrameFormat(t *testing.T) {
-	Test(t, "coverage: ProcessProfile accepts code-frame format", func(t *T) {
-		err := coverage.ProcessProfile(strings.NewReader(allCovered), "code-frame", "", &strings.Builder{})
+	Test(t, "coverage: ProcessProfile accepts codeframe format", func(t *T) {
+		err := coverage.ProcessProfile(strings.NewReader(allCovered), "codeframe", "", &strings.Builder{})
 		t.Ok(err == nil)
 		t.End()
 	})
@@ -219,10 +219,10 @@ func TestProcessProfileFileFieldIsAbsolute(t *testing.T) {
 		t.End()
 	})
 
-	Test(t, "ProcessProfile: code-frame format emits absolute path with file:///", func(t *T) {
+	Test(t, "ProcessProfile: codeframe format emits absolute path with file:///", func(t *T) {
 		_, profile := setupModuleDir(t)
 		var out strings.Builder
-		coverage.ProcessProfile(strings.NewReader(profile), "code-frame", "", &out)
+		coverage.ProcessProfile(strings.NewReader(profile), "codeframe", "", &out)
 		result := out.String()
 		t.Match(result, "file:///")
 		t.End()

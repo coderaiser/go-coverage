@@ -193,7 +193,7 @@ func Run(args []string, stdout io.Writer) error {
 		resolved := coverage.ResolveFile(b.File, dir)
 
 		var lines []string
-		if coverageFormat == "code-frame" {
+		if coverageFormat == "codeframe" {
 			lines, _ = coverage.ReadLines(resolved, b.Start, b.End)
 			if colorEnabled && len(lines) > 0 {
 				lines = coverage.HighlightLines(lines)
