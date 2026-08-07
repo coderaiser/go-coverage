@@ -1,3 +1,9 @@
+2026.08.07, v1.5.3
+
+fix:
+- cc701e2 coverage: --code-frame -> --codeframe
+- 521b85e ci
+
 2026.08.07, v1.5.2
 
 fix:
